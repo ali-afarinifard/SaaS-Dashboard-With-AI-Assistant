@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
   Download,
@@ -15,37 +14,38 @@ import { useReports } from "@/hooks/use-queries";
 import { Badge } from "@/components/ui/badge";
 import { RevenueChart } from "@/components/charts/revenue-chart";
 import { UserGrowthChart } from "@/components/charts/user-growth-chart";
+import { DateRangeSelector } from "@/components/ui/date-range-selector";
 import { formatDateLocale } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
 import { useSettingsStore } from "@/store";
 import type { DateRange } from "@/hooks/use-queries";
 import { cn } from "@/lib/utils";
+import { downloadCSV } from "@/lib/download";
 
-const DATE_RANGES: { value: DateRange; labelKey: string }[] = [
-  { value: "7d", labelKey: "last7days" },
-  { value: "30d", labelKey: "last30days" },
-  { value: "90d", labelKey: "last90days" },
-];
+const DATE_RANGE_VALUES: DateRange[] = ["7d", "30d", "90d"];
 
 const typeIcon = {
   revenue: TrendingUp,
   users: Users,
   churn: AlertTriangle,
   performance: Zap,
-};
+} as const;
+
 const typeColor = {
   revenue: "text-success bg-success/10",
   users: "text-primary bg-primary/10",
   churn: "text-warning bg-warning/10",
   performance: "text-accent bg-accent/10",
-};
+} as const;
 
-// Map status → translation key
 const statusKey = {
   ready: "statusReady",
   generating: "statusGenerating",
   failed: "statusFailed",
 } as const;
+
+type ReportType = keyof typeof typeIcon;
+type ReportStatus = keyof typeof statusKey;
 
 export function ReportsContent() {
   const t = useTranslations("reports");
@@ -54,46 +54,47 @@ export function ReportsContent() {
   const [generating, setGenerating] = useState(false);
   const { data: reports, isLoading } = useReports();
 
-  const handleGenerate = async () => {
+  const DATE_RANGES = useMemo(
+    () =>
+      DATE_RANGE_VALUES.map((value) => ({
+        value,
+        label: t(
+          value === "7d"
+            ? "last7days"
+            : value === "30d"
+              ? "last30days"
+              : "last90days",
+        ),
+      })),
+    [t],
+  );
+
+  const handleGenerate = useCallback(async () => {
     setGenerating(true);
     toast.info("Generating report...", "This may take a few seconds");
     await new Promise((r) => setTimeout(r, 2000));
     setGenerating(false);
     toast.success("Report generated!", "Your report is ready to download");
-  };
+  }, []);
 
-  const handleDownload = (title: string) => {
-    const csv = `Report: ${title}\nGenerated: ${new Date().toLocaleString()}\n\nMonth,Revenue,Users\nJan,42000,1240\nFeb,47500,1388\nMar,51200,1551`;
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${title.replace(/\s+/g, "_")}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("Download started", `${title} is downloading`);
-  };
+  const handleDownload = useCallback((title: string) => {
+  const csv = `Report: ${title}\nGenerated: ${new Date().toLocaleString()}\n\nMonth,Revenue,Users\nJan,42000,1240\nFeb,47500,1388\nMar,51200,1551`;
+  downloadCSV(title, csv);
+}, []);
+
+  const handleExportAll = useCallback(() => {
+    toast.info("Export started", "All reports are being exported");
+  }, []);
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Controls */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
-          {DATE_RANGES.map((r) => (
-            <button
-              key={r.value}
-              onClick={() => setRange(r.value)}
-              className={cn(
-                "px-3 py-1.5 text-xs font-medium rounded-md transition-all",
-                range === r.value
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t(r.labelKey as any)}
-            </button>
-          ))}
-        </div>
+        <DateRangeSelector
+          value={range}
+          onChange={setRange}
+          ranges={DATE_RANGES}
+        />
         <button
           onClick={handleGenerate}
           disabled={generating}
@@ -119,9 +120,7 @@ export function ReportsContent() {
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <h3 className="text-sm font-semibold">{t("generatedReports")}</h3>
           <button
-            onClick={() =>
-              toast.info("Export started", "All reports are being exported")
-            }
+            onClick={handleExportAll}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
           >
             <Download className="w-3.5 h-3.5" />
@@ -144,7 +143,7 @@ export function ReportsContent() {
 
           {!isLoading &&
             reports?.map((report) => {
-              const Icon = typeIcon[report.type];
+              const Icon = typeIcon[report.type as ReportType];
               return (
                 <div
                   key={report.id}
@@ -153,7 +152,7 @@ export function ReportsContent() {
                   <div
                     className={cn(
                       "p-2 rounded-lg shrink-0",
-                      typeColor[report.type],
+                      typeColor[report.type as ReportType],
                     )}
                   >
                     <Icon className="w-4 h-4" />
@@ -167,12 +166,9 @@ export function ReportsContent() {
                     </p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    {/* ── Locale-aware date ── */}
                     <span className="text-xs text-muted-foreground hidden sm:block">
                       {formatDateLocale(report.createdAt, locale)}
                     </span>
-
-                    {/* ── Translated status badge ── */}
                     <Badge
                       variant={
                         report.status === "ready"
@@ -182,9 +178,8 @@ export function ReportsContent() {
                             : "destructive"
                       }
                     >
-                      {t(statusKey[report.status] as any)}
+                      {t(statusKey[report.status as ReportStatus])}
                     </Badge>
-
                     {report.status === "ready" && (
                       <button
                         onClick={() => handleDownload(report.title)}
