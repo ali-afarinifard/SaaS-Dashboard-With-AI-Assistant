@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
 import { Providers } from "@/components/layout/providers";
+import NextTopLoader from "nextjs-toploader";
 import { DM_Sans, Vazirmatn } from "next/font/google";
 import "./globals.css";
 
@@ -42,6 +43,7 @@ export default async function RootLayout({
     >
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages} locale={locale}>
+          <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>
