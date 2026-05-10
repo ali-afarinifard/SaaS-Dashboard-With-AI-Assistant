@@ -1,6 +1,6 @@
+// src/components/ui/notification-dropdown.tsx
 "use client";
-
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Bell,
   CheckCheck,
@@ -80,11 +80,13 @@ const typeColor = {
   feature: "text-accent bg-accent/10",
 };
 
+const PORTAL_ID = "notification-portal";
+
 export function NotificationDropdown() {
   const ref = useRef<HTMLDivElement>(null);
-
   const { locale } = useSettingsStore();
-  const t = useTranslations("common");
+  const t = useTranslations("notifications");
+  const isRTL = locale === "fa";
 
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
@@ -93,7 +95,12 @@ export function NotificationDropdown() {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const portalContent = document.getElementById(PORTAL_ID);
+      if (
+        ref.current &&
+        !ref.current.contains(e.target as Node) &&
+        !portalContent?.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     };
@@ -101,20 +108,22 @@ export function NotificationDropdown() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
+  const toggleOpen = useCallback(() => setOpen((o) => !o), []);
 
-  const markRead = (id: string) => {
+  const markAllRead = useCallback(() => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  }, []);
+
+  const markRead = useCallback((id: string) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );
-  };
+  }, []);
 
   return (
     <div className="relative" ref={ref}>
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggleOpen}
         className="relative p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
       >
         <Bell className="w-4 h-4" />
@@ -122,7 +131,7 @@ export function NotificationDropdown() {
           <span
             className={cn(
               "absolute -top-0.5 w-4 h-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center",
-              locale === "fa" ? "-left-0.5" : "-right-0.5",
+              isRTL ? "-left-0.5" : "-right-0.5",
             )}
           >
             {unreadCount}
@@ -133,26 +142,21 @@ export function NotificationDropdown() {
       {open && (
         <Portal>
           <div
+            id={PORTAL_ID}
             className={cn(
-             "fixed top-16 z-[9999] w-80 bg-card border border-border rounded-xl shadow-2xl animate-slide-up overflow-hidden",
-            locale === "fa" ? "left-32" : "right-32",
+              "fixed top-16 z-[9999] w-80 bg-card border border-border rounded-xl shadow-2xl animate-slide-up overflow-hidden",
+              isRTL ? "left-32" : "right-32",
             )}
+            dir={isRTL ? "rtl" : "ltr"}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold">
-                  {locale === "fa" ? "اعلان‌ها" : "Notifications"}
-                </h3>
+                <h3 className="text-sm font-semibold">{t("title")}</h3>
                 {unreadCount > 0 && (
-                  <div
-                    className={`px-1.5 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full`}
-                  >
+                  <div className="px-1.5 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full">
                     <span
-                      className={cn(
-                        "relative",
-                        locale === "fa" ? "top-[2px]" : "top-0",
-                      )}
+                      className={cn("relative", "top-[2px]")}
                     >
                       {unreadCount}
                     </span>
@@ -165,7 +169,7 @@ export function NotificationDropdown() {
                   className="flex items-center gap-1 text-xs text-primary hover:underline"
                 >
                   <CheckCheck className="w-3 h-3" />
-                  {locale === "fa" ? "خوانده شده همه" : "Mark all read"}
+                  {t("markAllRead")}
                 </button>
               )}
             </div>
@@ -179,9 +183,7 @@ export function NotificationDropdown() {
                     key={n.id}
                     onClick={() => markRead(n.id)}
                     className={cn(
-                      "w-full flex items-start gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors",
-                      // اصلاح جهت متن در لیست
-                      locale === "fa" ? "text-right" : "text-left",
+                      "w-full flex items-start gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors text-start",
                       !n.read && "bg-primary/5",
                     )}
                   >
@@ -222,9 +224,7 @@ export function NotificationDropdown() {
             {/* Footer */}
             <div className="px-4 py-2.5 border-t border-border">
               <button className="w-full text-xs text-primary hover:underline text-center">
-                {locale === "fa"
-                  ? "مشاهده همه اعلان‌ها"
-                  : "View all notifications"}
+                {t("viewAll")}
               </button>
             </div>
           </div>

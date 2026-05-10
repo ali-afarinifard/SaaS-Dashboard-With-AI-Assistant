@@ -55,12 +55,12 @@ export const trafficSources: TrafficSource[] = [
 ];
 
 export const featureUsage: FeatureUsage[] = [
-  { feature: "Analytics", usage: 89, trend: 12 },
-  { feature: "Reports", usage: 76, trend: 8 },
-  { feature: "API Access", usage: 64, trend: -3 },
-  { feature: "Team Collab", usage: 58, trend: 21 },
-  { feature: "Integrations", usage: 47, trend: 15 },
-  { feature: "AI Assistant", usage: 43, trend: 34 },
+  { feature: "analytics", usage: 89, trend: 12 },
+  { feature: "reports", usage: 76, trend: 8 },
+  { feature: "apiAccess", usage: 64, trend: -3 },
+  { feature: "teamCollab", usage: 58, trend: 21 },
+  { feature: "integrations", usage: 47, trend: 15 },
+  { feature: "aiAssistant", usage: 43, trend: 34 },
 ];
 
 export const customers: Customer[] = [

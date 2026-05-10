@@ -32,7 +32,13 @@
     "trafficSources": "منابع ترافیک",
     "monthly": "ماهانه",
     "weekly": "هفتگی",
-    "daily": "روزانه"
+    "daily": "روزانه",
+    "analytics": "آمار و تحلیل",
+    "reports": "گزارش‌ها",
+    "apiAccess": "دسترسی API",
+    "teamCollab": "همکاری تیمی",
+    "integrations": "یکپارچه‌سازی‌ها",
+    "aiAssistant": "دستیار هوش مصنوعی"
   },
   "customers": {
     "title": "مشتریان",
@@ -126,7 +132,16 @@
     "expires": "انقضا",
     "update": "به‌روزرسانی",
     "notificationPreferences": "تنظیمات اعلان‌ها",
-    "saving": "درحال ذخیره..."
+    "saving": "درحال ذخیره...",
+    "emailNotif": "اعلان ایمیل",
+    "emailNotifDesc": "دریافت اعلان‌های مربوط به حساب کاربری از طریق ایمیل",
+    "pushNotif": "اعلان فوری",
+    "pushNotifDesc": "دریافت لحظه‌ای اعلان‌های مربوط به حساب کاربری",
+    "weeklyNotif": "اعلان‌های هفتگی",
+    "weeklyNotifDesc": "دریافت اعلان‌های هفتگی مربوط به حساب کاربری",
+    "monthlyNotif": "اعلان‌های ماهانه",
+    "monthlyNotifDesc": "دریافت اعلان‌های ماهانه مربوط به حساب کاربری"
+
   },
   "common": {
     "loading": "در حال بارگذاری...",
@@ -140,7 +155,7 @@
     "delete": "حذف",
     "edit": "ویرایش",
     "add": "افزودن",
-    "search": "جست‌جو...",
+    "search": "جستجو ...",
     "filter": "فیلتر",
     "sort": "مرتب‌سازی",
     "export": "خروجی",
@@ -152,5 +167,10 @@
     "select": "کلیک",
     "navigation": "لیست صفحات",
     "actions": "عملیات"
+  },
+  "notifications": {
+    "title": "اعلان‌ها",
+    "markAllRead": "خواندن همه",
+    "viewAll": "مشاهده همه اعلان‌ها"
   }
 }

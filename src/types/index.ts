@@ -38,8 +38,16 @@ export interface TrafficSource {
   conversion: number;
 }
 
+export type FeatureKey =
+  | "analytics"
+  | "reports"
+  | "apiAccess"
+  | "teamCollab"
+  | "integrations"
+  | "aiAssistant";
+
 export interface FeatureUsage {
-  feature: string;
+  feature: FeatureKey;
   usage: number;
   trend: number;
 }

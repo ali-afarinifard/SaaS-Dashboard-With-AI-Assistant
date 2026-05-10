@@ -55,8 +55,8 @@ export function NotificationsTab() {
               <ToggleSwitch
                 checked={notifications[key]}
                 onChange={handleToggle(key)}
-                label={t(`notif_${key}_label`)}
-                description={t(`notif_${key}_desc`)}
+                label={t(`${key}Notif`)}
+                description={t(`${key}NotifDesc`)}
               />
             </div>
           ))}

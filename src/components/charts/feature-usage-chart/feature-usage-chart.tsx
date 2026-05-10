@@ -6,7 +6,7 @@ import { useFeatureUsage } from "@/hooks/use-queries";
 import { cn } from "@/lib/utils";
 
 export const FeatureUsageChart = memo(function FeatureUsageChart() {
-  const t = useTranslations("charts");
+  const tCharts = useTranslations("charts");
   const { data, isLoading } = useFeatureUsage();
 
   const items = data ?? [];
@@ -31,7 +31,7 @@ export const FeatureUsageChart = memo(function FeatureUsageChart() {
         {items.map((item) => (
           <div key={item.feature}>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-medium">{item.feature}</span>
+              <span className="text-xs font-medium">{tCharts(item.feature)}</span>
               <div className="flex items-center gap-2">
                 <span
                   className={cn(

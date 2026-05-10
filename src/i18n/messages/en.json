@@ -32,7 +32,13 @@
     "trafficSources": "Traffic Sources",
     "monthly": "Monthly",
     "weekly": "Weekly",
-    "daily": "Daily"
+    "daily": "Daily",
+    "analytics": "Analytics",
+    "reports": "Reports",
+    "apiAccess": "API Access",
+    "teamCollab": "Team Collab",
+    "integrations": "Integrations",
+    "aiAssistant": "AI Assistant"
   },
   "customers": {
     "title": "Customers",
@@ -126,7 +132,15 @@
     "expires": "Expires",
     "update": "Update",
     "notificationPreferences": "Notification Preferences",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "emailNotif": "Email Notifications",
+    "emailNotifDesc": "Receive email updates about your account",
+    "pushNotif": "Push Notifications",
+    "pushNotifDesc": "Receive push updates about your account",
+    "weeklyNotif": "Weekly Notifications",
+    "weeklyNotifDesc": "Receive weekly updates about your account",
+    "monthlyNotif": "Monthly Notifications",
+    "monthlyNotifDesc": "Receive monthly updates about your account"
   },
   "common": {
     "loading": "Loading...",
@@ -152,5 +166,10 @@
     "select": "select",
     "navigation": "Navigation",
     "actions": "Actions"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "viewAll": "View all notifications"
   }
 }
