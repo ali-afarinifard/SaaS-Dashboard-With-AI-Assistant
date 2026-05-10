@@ -61,7 +61,7 @@ cp .env.local.example .env.local
 Open `.env.local` and add your GapGPT API key:
 
 ```env
-GAPGPT_API_KEY=your_gapgpt_api_key_here
+GAPGPT_API_KEY=gapgpt_api_key_here
 ```
 
 > Get your API key from [gapgpt.app](https://gapgpt.app)
@@ -73,40 +73,6 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## 📁 Project Structure
-
-```
-src/
-├── app/
-│   ├── api/
-│   │   └── chat/         # AI chat API route (GapGPT integration)
-│   ├── dashboard/         # Main dashboard page
-│   ├── customers/         # Customer management page
-│   ├── reports/           # Reports page
-│   ├── settings/          # Settings page
-│   ├── globals.css        # Global styles + CSS variables
-│   └── layout.tsx         # Root layout with providers
-├── components/
-│   ├── ai/
-│   │   └── chat-panel.tsx # AI assistant slide-in panel
-│   ├── charts/            # Recharts chart components
-│   ├── layout/            # Sidebar, Topbar, Shell, Providers
-│   └── ui/                # MetricCard, Badge (atomic components)
-├── hooks/
-│   └── use-queries.ts     # React Query data fetching hooks
-├── i18n/
-│   └── messages/          # en.json + fa.json translations
-├── lib/
-│   ├── mock-data.ts       # Realistic mock SaaS data
-│   └── utils.ts           # cn(), formatCurrency(), formatDate()...
-├── store/
-│   └── index.ts           # Zustand stores (UI, Settings, Chat)
-└── types/
-    └── index.ts           # TypeScript types
-```
 
 ---
 
