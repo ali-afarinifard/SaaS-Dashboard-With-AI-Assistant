@@ -1,27 +1,15 @@
 "use client";
-
-import { memo, useMemo } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { memo } from "react";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { useTranslations } from "next-intl";
 import { usePlanDistribution } from "@/hooks/use-queries";
-
-const CustomTooltip = memo(function CustomTooltip({ active, payload }: any) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="custom-tooltip">
-      <div className="flex items-center gap-2">
-        <span className="w-2 h-2 rounded-full" style={{ background: payload[0].payload.color }} />
-        <span className="text-xs">{payload[0].name}:</span>
-        <span className="text-xs font-semibold">{payload[0].value}%</span>
-      </div>
-    </div>
-  );
-});
+import { CustomTooltip } from "./custom-tooltip";
 
 export const PlanDistributionChart = memo(function PlanDistributionChart() {
   const t = useTranslations("charts");
   const { data, isLoading } = usePlanDistribution();
-  const chartData = useMemo(() => data ?? [], [data]);
+
+  const chartData = data ?? [];
 
   if (isLoading) {
     return (
@@ -39,13 +27,17 @@ export const PlanDistributionChart = memo(function PlanDistributionChart() {
         <PieChart>
           <Pie
             data={chartData}
-            cx="50%" cy="50%"
-            innerRadius={55} outerRadius={85}
-            paddingAngle={3} dataKey="value"
-            isAnimationActive animationDuration={600}
+            cx="50%"
+            cy="50%"
+            innerRadius={55}
+            outerRadius={85}
+            paddingAngle={3}
+            dataKey="value"
+            isAnimationActive
+            animationDuration={600}
           >
-            {chartData.map((entry, index) => (
-              <Cell key={index} fill={entry.color} strokeWidth={0} />
+            {chartData.map((entry) => (
+              <Cell key={entry.name} fill={entry.color} strokeWidth={0} />
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />

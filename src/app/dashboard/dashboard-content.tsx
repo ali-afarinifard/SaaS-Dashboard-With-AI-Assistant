@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
   DollarSign,
@@ -14,18 +14,11 @@ import {
 import { MetricCard } from "@/components/ui/metric-card";
 import { RevenueChart } from "@/components/charts/revenue-chart";
 import { UserGrowthChart } from "@/components/charts/user-growth-chart";
-import { PlanDistributionChart } from "@/components/charts/plan-distribution-chart";
 import { FeatureUsageChart } from "@/components/charts/feature-usage-chart";
 import { useDashboardMetrics } from "@/hooks/use-queries";
 import type { DateRange } from "@/hooks/use-queries";
-import { cn } from "@/lib/utils";
 import { DateRangeSelector } from "@/components/ui/date-range-selector";
-
-const DATE_RANGES: { value: DateRange; label: string }[] = [
-  { value: "7d", label: "Last 7 days" },
-  { value: "30d", label: "Last 30 days" },
-  { value: "90d", label: "Last 90 days" },
-];
+import { PlanDistributionChart } from "@/components/charts/plan-distribution-chart";
 
 export function DashboardContent() {
   const t = useTranslations("metrics");
@@ -34,19 +27,12 @@ export function DashboardContent() {
   const [range, setRange] = useState<DateRange>("30d");
   const { data: metrics, isLoading } = useDashboardMetrics(range);
 
-  const getRangeLabel = useCallback(
-    (value: string) => {
-      switch (value) {
-        case "7d":
-          return tReports("last7days");
-        case "30d":
-          return tReports("last30days");
-        case "90d":
-          return tReports("last90days");
-        default:
-          return value;
-      }
-    },
+   const DATE_RANGES = useMemo(
+    () => [
+      { value: "7d" as DateRange, label: tReports("last7days") },
+      { value: "30d" as DateRange, label: tReports("last30days") },
+      { value: "90d" as DateRange, label: tReports("last90days") },
+    ],
     [tReports],
   );
 
