@@ -73,6 +73,18 @@ export function formatDateLocale(date: string | Date, locale: string): string {
   }).format(new Date(date));
 }
 
+export function getTextDirection(text: string): "rtl" | "ltr" {
+  const rtlChars =
+    /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\u0590-\u05FF]/;
+  const trimmed = text.trim();
+  if (!trimmed) return "ltr";
+  for (const char of trimmed) {
+    if (rtlChars.test(char)) return "rtl";
+    if (/[a-zA-Z]/.test(char)) return "ltr";
+  }
+  return "ltr";
+}
+
 // export function useFormatDate() {
 //   const locale = useLocale();
 

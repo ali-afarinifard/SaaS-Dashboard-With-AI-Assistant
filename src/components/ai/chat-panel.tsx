@@ -1,85 +1,41 @@
 "use client";
-
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { X, Send, Bot, User, Sparkles, RotateCcw } from "lucide-react";
+import { X, Send, Bot, Sparkles, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useChatStore } from "@/store";
-import { cn, generateId } from "@/lib/utils";
+import { useChatStore, useSettingsStore } from "@/store";
+import { cn, getTextDirection } from "@/lib/utils";
+import { MessageBubble } from "./message-bubble";
 
-// Detect if text is RTL (Persian/Arabic/Hebrew)
-function getTextDirection(text: string): "rtl" | "ltr" {
-  const rtlChars = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\u0590-\u05FF]/;
-  const trimmed = text.trim();
-  if (!trimmed) return "ltr";
-  // Check first meaningful character
-  for (const char of trimmed) {
-    if (rtlChars.test(char)) return "rtl";
-    if (/[a-zA-Z]/.test(char)) return "ltr";
-  }
-  return "ltr";
-}
+// Constants
+const panelVariants = {
+  initial: { x: "100%", opacity: 0 },
+  animate: { x: 0, opacity: 1 },
+  exit: { x: "100%", opacity: 0 },
+} as const;
 
-function TypingIndicator() {
-  return (
-    <div className="flex items-center gap-1 px-1">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce"
-          style={{ animationDelay: `${i * 150}ms` }}
-        />
-      ))}
-    </div>
-  );
-}
-
-interface MessageBubbleProps {
-  role: "user" | "assistant";
-  content: string;
-  isLoading?: boolean;
-}
-
-function MessageBubble({ role, content, isLoading }: MessageBubbleProps) {
-  const dir = getTextDirection(content);
-  const isUser = role === "user";
-
-  return (
-    <div className={cn("flex gap-2.5", isUser ? "flex-row-reverse" : "flex-row")}>
-      <div
-        className={cn(
-          "w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5",
-          !isUser
-            ? "bg-gradient-to-br from-primary to-accent"
-            : "bg-secondary border border-border"
-        )}
-      >
-        {!isUser ? (
-          <Bot className="w-3 h-3 text-white" />
-        ) : (
-          <User className="w-3 h-3 text-muted-foreground" />
-        )}
-      </div>
-      <div
-        dir={dir}
-        className={cn(
-          "max-w-[80%] rounded-xl px-3.5 py-2.5 text-xs leading-relaxed",
-          isUser
-            ? "bg-primary text-primary-foreground"
-            : "bg-secondary text-foreground",
-          dir === "rtl" && "text-right font-[Vazirmatn,sans-serif]"
-        )}
-      >
-        {isLoading ? <TypingIndicator /> : content}
-      </div>
-    </div>
-  );
-}
+const panelTransition = {
+  type: "spring",
+  damping: 30,
+  stiffness: 300,
+} as const;
 
 export function AIChatPanel() {
   const t = useTranslations("ai");
-  const { messages, isOpen, isLoading, setIsOpen, addMessage, updateMessage, clearMessages, setIsLoading } =
-    useChatStore();
+  const { locale } = useSettingsStore();
+  const isRTL = locale === "fa";
+
+  const {
+    messages,
+    isOpen,
+    isLoading,
+    setIsOpen,
+    addMessage,
+    updateMessage,
+    clearMessages,
+    setIsLoading,
+  } = useChatStore();
+
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -100,7 +56,6 @@ export function AIChatPanel() {
       addMessage("user", text);
       setIsLoading(true);
 
-      // Add loading placeholder
       const store = useChatStore.getState();
       store.addMessage("assistant", "");
       const allMsgs = useChatStore.getState().messages;
@@ -125,39 +80,60 @@ export function AIChatPanel() {
 
         updateMessage(lastMsg.id, data.content, false);
       } catch {
-        updateMessage(lastMsg.id, "Sorry, I couldn't process that. Please try again.", false);
+        updateMessage(lastMsg.id, t("errorMessage"), false);
       } finally {
         setIsLoading(false);
       }
     },
-    [isLoading, addMessage, updateMessage, setIsLoading]
+    [isLoading, addMessage, updateMessage, setIsLoading, t],
   );
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage(input);
-    }
-  };
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage(input);
+      }
+    },
+    [sendMessage, input],
+  );
 
-  // Auto-detect input direction
-  const inputDir = getTextDirection(input);
+  const handleClose = useCallback(() => setIsOpen(false), [setIsOpen]);
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value),
+    [],
+  );
+  const handleSend = useCallback(
+    () => sendMessage(input),
+    [sendMessage, input],
+  );
 
-  const suggestions = [
-    t("suggestions.revenue"),
-    t("suggestions.churn"),
-    t("suggestions.users"),
-    t("suggestions.forecast"),
-  ];
+  const suggestions = useMemo(
+    () => [
+      t("suggestions.revenue"),
+      t("suggestions.churn"),
+      t("suggestions.users"),
+      t("suggestions.forecast"),
+    ],
+    [t],
+  );
+
+  const inputDir = input.trim()
+    ? getTextDirection(input)
+    : isRTL
+      ? "rtl"
+      : "ltr";
 
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ x: "100%", opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: "100%", opacity: 0 }}
-          transition={{ type: "spring", damping: 30, stiffness: 300 }}
+          variants={panelVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={panelTransition}
+          dir={isRTL ? "rtl" : "ltr"}
           className="fixed right-0 top-0 h-full w-96 bg-card border-l border-border flex flex-col shadow-2xl z-50"
         >
           {/* Header */}
@@ -176,13 +152,13 @@ export function AIChatPanel() {
                 <button
                   onClick={clearMessages}
                   className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-                  title="Clear chat"
+                  title={t("clearChat")}
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                 </button>
               )}
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -206,7 +182,7 @@ export function AIChatPanel() {
                     <button
                       key={s}
                       onClick={() => sendMessage(s)}
-                      className="w-full text-left px-3 py-2.5 rounded-lg text-xs bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-colors border border-border/50"
+                      className="w-full text-start px-3 py-2.5 rounded-lg text-xs bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-colors border border-border/50"
                     >
                       {s}
                     </button>
@@ -233,18 +209,18 @@ export function AIChatPanel() {
                 ref={inputRef}
                 value={input}
                 dir={inputDir}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder={t("placeholder")}
                 rows={1}
                 className={cn(
                   "flex-1 bg-transparent text-xs resize-none outline-none text-foreground placeholder:text-muted-foreground max-h-28",
-                  inputDir === "rtl" && "font-[Vazirmatn,sans-serif] text-right"
+                  isRTL && "font-[Vazirmatn,sans-serif]",
                 )}
                 style={{ lineHeight: "1.5" }}
               />
               <button
-                onClick={() => sendMessage(input)}
+                onClick={handleSend}
                 disabled={!input.trim() || isLoading}
                 className="p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors shrink-0"
               >
@@ -252,7 +228,7 @@ export function AIChatPanel() {
               </button>
             </div>
             <p className="text-xs text-muted-foreground mt-1.5 text-center">
-              Enter ↵ to send · Shift+Enter for newline
+              {t("inputHint")}
             </p>
           </div>
         </motion.div>

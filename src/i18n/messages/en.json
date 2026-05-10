@@ -82,7 +82,10 @@
       "users": "Which features have most engagement?",
       "forecast": "Forecast next month's MRR"
     },
-    "poweredBy": "Powered by AI"
+    "poweredBy": "Powered by AI",
+    "errorMessage": "Sorry, I couldn't process that. Please try again.",
+    "clearChat": "Clear chat",
+    "inputHint": "Enter ↵ to send · Shift+Enter for newline"
   },
   "settings": {
     "title": "Settings",
@@ -145,7 +148,7 @@
     "refresh": "Refresh"
   },
   "commandPalette": {
-     "navigate": "navigate",
+    "navigate": "navigate",
     "select": "select",
     "navigation": "Navigation",
     "actions": "Actions"
