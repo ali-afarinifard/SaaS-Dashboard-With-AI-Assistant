@@ -1,0 +1,208 @@
+"use client";
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import {
+  Download,
+  TrendingUp,
+  Users,
+  AlertTriangle,
+  Zap,
+  Plus,
+  RefreshCw,
+} from "lucide-react";
+import { useReports } from "@/hooks/use-queries";
+import { Badge } from "@/components/ui/badge";
+import { RevenueChart } from "@/components/charts/revenue-chart";
+import { UserGrowthChart } from "@/components/charts/user-growth-chart";
+import { formatDateLocale } from "@/lib/utils";
+import { toast } from "@/components/ui/toast";
+import { useSettingsStore } from "@/store";
+import type { DateRange } from "@/hooks/use-queries";
+import { cn } from "@/lib/utils";
+
+const DATE_RANGES: { value: DateRange; labelKey: string }[] = [
+  { value: "7d", labelKey: "last7days" },
+  { value: "30d", labelKey: "last30days" },
+  { value: "90d", labelKey: "last90days" },
+];
+
+const typeIcon = {
+  revenue: TrendingUp,
+  users: Users,
+  churn: AlertTriangle,
+  performance: Zap,
+};
+const typeColor = {
+  revenue: "text-success bg-success/10",
+  users: "text-primary bg-primary/10",
+  churn: "text-warning bg-warning/10",
+  performance: "text-accent bg-accent/10",
+};
+
+// Map status → translation key
+const statusKey = {
+  ready: "statusReady",
+  generating: "statusGenerating",
+  failed: "statusFailed",
+} as const;
+
+export function ReportsContent() {
+  const t = useTranslations("reports");
+  const { locale } = useSettingsStore();
+  const [range, setRange] = useState<DateRange>("30d");
+  const [generating, setGenerating] = useState(false);
+  const { data: reports, isLoading } = useReports();
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    toast.info("Generating report...", "This may take a few seconds");
+    await new Promise((r) => setTimeout(r, 2000));
+    setGenerating(false);
+    toast.success("Report generated!", "Your report is ready to download");
+  };
+
+  const handleDownload = (title: string) => {
+    const csv = `Report: ${title}\nGenerated: ${new Date().toLocaleString()}\n\nMonth,Revenue,Users\nJan,42000,1240\nFeb,47500,1388\nMar,51200,1551`;
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title.replace(/\s+/g, "_")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Download started", `${title} is downloading`);
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      {/* Controls */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
+          {DATE_RANGES.map((r) => (
+            <button
+              key={r.value}
+              onClick={() => setRange(r.value)}
+              className={cn(
+                "px-3 py-1.5 text-xs font-medium rounded-md transition-all",
+                range === r.value
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t(r.labelKey as any)}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={handleGenerate}
+          disabled={generating}
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-60"
+        >
+          {generating ? (
+            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <Plus className="w-3.5 h-3.5" />
+          )}
+          {t("generate")}
+        </button>
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <RevenueChart range={range} />
+        <UserGrowthChart range={range} />
+      </div>
+
+      {/* Reports list */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+          <h3 className="text-sm font-semibold">{t("generatedReports")}</h3>
+          <button
+            onClick={() =>
+              toast.info("Export started", "All reports are being exported")
+            }
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            {t("exportAll")}
+          </button>
+        </div>
+
+        <div className="divide-y divide-border">
+          {isLoading &&
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="px-5 py-4 flex items-center gap-4">
+                <div className="skeleton w-8 h-8 rounded-lg" />
+                <div className="flex-1">
+                  <div className="skeleton h-3 w-48 mb-2" />
+                  <div className="skeleton h-2.5 w-64" />
+                </div>
+                <div className="skeleton h-5 w-16 rounded-md" />
+              </div>
+            ))}
+
+          {!isLoading &&
+            reports?.map((report) => {
+              const Icon = typeIcon[report.type];
+              return (
+                <div
+                  key={report.id}
+                  className="px-5 py-4 flex items-center gap-4 hover:bg-secondary/30 transition-colors cursor-pointer"
+                >
+                  <div
+                    className={cn(
+                      "p-2 rounded-lg shrink-0",
+                      typeColor[report.type],
+                    )}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {report.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {report.description}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    {/* ── Locale-aware date ── */}
+                    <span className="text-xs text-muted-foreground hidden sm:block">
+                      {formatDateLocale(report.createdAt, locale)}
+                    </span>
+
+                    {/* ── Translated status badge ── */}
+                    <Badge
+                      variant={
+                        report.status === "ready"
+                          ? "success"
+                          : report.status === "generating"
+                            ? "warning"
+                            : "destructive"
+                      }
+                    >
+                      {t(statusKey[report.status] as any)}
+                    </Badge>
+
+                    {report.status === "ready" && (
+                      <button
+                        onClick={() => handleDownload(report.title)}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                        title={t("download")}
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    {report.status === "generating" && (
+                      <RefreshCw className="w-3.5 h-3.5 text-muted-foreground animate-spin ml-2" />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </div>
+    </div>
+  );
+}
