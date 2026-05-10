@@ -14,11 +14,11 @@ import {
 import { MetricCard } from "@/components/ui/metric-card";
 import { RevenueChart } from "@/components/charts/revenue-chart";
 import { UserGrowthChart } from "@/components/charts/user-growth-chart";
-import { FeatureUsageChart } from "@/components/charts/feature-usage-chart";
 import { useDashboardMetrics } from "@/hooks/use-queries";
 import type { DateRange } from "@/hooks/use-queries";
 import { DateRangeSelector } from "@/components/ui/date-range-selector";
 import { PlanDistributionChart } from "@/components/charts/plan-distribution-chart";
+import { FeatureUsageChart } from "@/components/charts/feature-usage-chart";
 
 export function DashboardContent() {
   const t = useTranslations("metrics");

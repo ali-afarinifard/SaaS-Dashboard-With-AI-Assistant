@@ -1,6 +1,5 @@
 "use client";
-
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useFeatureUsage } from "@/hooks/use-queries";
@@ -9,7 +8,8 @@ import { cn } from "@/lib/utils";
 export const FeatureUsageChart = memo(function FeatureUsageChart() {
   const t = useTranslations("charts");
   const { data, isLoading } = useFeatureUsage();
-  const items = useMemo(() => data ?? [], [data]);
+
+  const items = data ?? [];
 
   if (isLoading) {
     return (
@@ -33,10 +33,12 @@ export const FeatureUsageChart = memo(function FeatureUsageChart() {
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-medium">{item.feature}</span>
               <div className="flex items-center gap-2">
-                <span className={cn(
-                  "flex items-center gap-0.5 text-xs font-medium",
-                  item.trend > 0 ? "metric-up" : "metric-down"
-                )}>
+                <span
+                  className={cn(
+                    "flex items-center gap-0.5 text-xs font-medium",
+                    item.trend > 0 ? "metric-up" : "metric-down",
+                  )}
+                >
                   {item.trend > 0
                     ? <TrendingUp className="w-3 h-3" />
                     : <TrendingDown className="w-3 h-3" />}
