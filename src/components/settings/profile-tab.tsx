@@ -1,0 +1,203 @@
+"use client";
+import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
+import { Globe, Save, Camera, Loader2, Sun, Moon, Monitor } from "lucide-react";
+import { useSettingsStore } from "@/store";
+import { toast } from "@/components/ui/toast";
+import { mockApi } from "@/lib/mock-api";
+import { cn } from "@/lib/utils";
+
+interface ProfileTabProps {
+  mounted: boolean;
+}
+
+export function ProfileTab({ mounted }: ProfileTabProps) {
+  const t = useTranslations("settings");
+  const { theme, setTheme } = useTheme();
+  const { locale, setLocale } = useSettingsStore();
+
+  const [profile, setProfile] = useState({
+    firstName: "Admin",
+    lastName: "User",
+    email: "admin@me.io",
+    role: t("owner"),
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const themeOptions = [
+    { value: "light", label: t("light"), icon: Sun },
+    { value: "dark", label: t("dark"), icon: Moon },
+    { value: "system", label: t("system"), icon: Monitor },
+  ];
+
+  const handleSaveProfile = useCallback(async () => {
+    setSavingProfile(true);
+    try {
+      await mockApi.profile.update(profile);
+      toast.success(
+        "Profile updated",
+        "Your changes have been saved successfully",
+      );
+    } catch {
+      toast.error("Save failed", "Something went wrong. Please try again.");
+    } finally {
+      setSavingProfile(false);
+    }
+  }, [profile]);
+
+  const handleFieldChange = useCallback(
+    (field: keyof typeof profile) => (e: React.ChangeEvent<HTMLInputElement>) =>
+      setProfile((p) => ({ ...p, [field]: e.target.value })),
+    [],
+  );
+
+  const handleThemeChange = useCallback(
+    (value: string, label: string) => {
+      setTheme(value);
+      toast.success("Theme changed", `Switched to ${label} mode`);
+    },
+    [setTheme],
+  );
+
+  const handleLocaleChange = useCallback(
+    (value: "en" | "fa") => {
+      setLocale(value);
+      window.location.reload();
+    },
+    [setLocale],
+  );
+
+  return (
+    <>
+      {/* Profile Information */}
+      <div className="bg-card rounded-xl border border-border p-6">
+        <h3 className="text-sm font-semibold mb-5">
+          {t("profileInformation")}
+        </h3>
+
+        {/* Avatar */}
+        <div className="flex items-center gap-4 mb-6">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-2xl font-bold text-white">
+              {profile.firstName[0]}
+            </div>
+            <button
+              onClick={() =>
+                toast.info("Upload photo", "Photo upload coming soon")
+              }
+              className="absolute -bottom-1 -right-1 w-6 h-6 bg-card border border-border rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+            >
+              <Camera className="w-3 h-3 text-muted-foreground" />
+            </button>
+          </div>
+          <div>
+            <p className="font-semibold">
+              {profile.firstName} {profile.lastName}
+            </p>
+            <p className="text-sm text-muted-foreground">{profile.email}</p>
+          </div>
+        </div>
+
+        {/* Fields */}
+        <div className="grid grid-cols-2 gap-4">
+          {(
+            [
+              { label: t("firstName"), field: "firstName" as const },
+              { label: t("lastName"), field: "lastName" as const },
+              { label: t("email"), field: "email" as const },
+              { label: t("role"), field: "role" as const },
+            ] as const
+          ).map(({ label, field }) => (
+            <div key={field}>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                {label}
+              </label>
+              <input
+                value={profile[field]}
+                onChange={handleFieldChange(field)}
+                disabled={field === "role"}
+                className="w-full px-3 py-2 text-sm bg-secondary border border-border rounded-lg outline-none focus:border-primary/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Appearance */}
+      <div className="bg-card rounded-xl border border-border p-6">
+        <h3 className="text-sm font-semibold mb-5">{t("appearance")}</h3>
+        <div className="space-y-5">
+          {/* Theme */}
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-3">
+              {t("theme")}
+            </label>
+            <div className="flex gap-2">
+              {themeOptions.map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => handleThemeChange(value, label)}
+                  className={cn(
+                    "flex-1 flex flex-col items-center gap-2 py-3 rounded-lg border transition-all text-sm",
+                    mounted && theme === value
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Language */}
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-3">
+              {t("language")}
+            </label>
+            <div className="flex gap-2">
+              {(
+                [
+                  { value: "en" as const, label: "English" },
+                  { value: "fa" as const, label: "فارسی" },
+                ] as const
+              ).map(({ value, label }) => (
+                <button
+                  key={value}
+                  onClick={() => handleLocaleChange(value)}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all text-sm",
+                    locale === value
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                  )}
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Save */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleSaveProfile}
+          disabled={savingProfile}
+          className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-70"
+        >
+          {savingProfile ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <Save className="w-3.5 h-3.5" />
+          )}
+          {savingProfile ? t("saving") : t("save")}
+        </button>
+      </div>
+    </>
+  );
+}

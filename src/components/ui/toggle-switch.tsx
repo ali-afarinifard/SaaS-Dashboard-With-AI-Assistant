@@ -1,5 +1,4 @@
 "use client";
-
 import { cn } from "@/lib/utils";
 
 interface ToggleSwitchProps {
@@ -28,29 +27,29 @@ export function ToggleSwitch({
         </div>
       )}
 
-      <button
-        role="switch"
-        aria-checked={checked}
-        onClick={() => !disabled && onChange(!checked)}
-        disabled={disabled}
-        className={cn(
-          // track
-          "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent",
-          "transition-colors duration-200 ease-in-out",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-          checked ? "bg-primary" : "bg-muted",
-          disabled && "opacity-50 cursor-not-allowed"
-        )}
-      >
-        <span
+      <div dir="ltr">
+        <button
+          role="switch"
+          aria-checked={checked}
+          onClick={() => !disabled && onChange(!checked)}
+          disabled={disabled}
           className={cn(
-            // thumb
-            "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md ring-0",
-            "transition-transform duration-200 ease-in-out",
-            checked ? "translate-x-5" : "translate-x-0"
+            "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent",
+            "transition-colors duration-200 ease-in-out",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            checked ? "bg-primary" : "bg-muted",
+            disabled && "opacity-50 cursor-not-allowed",
           )}
-        />
-      </button>
+        >
+          <span
+            className={cn(
+              "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md ring-0",
+              "transition-transform duration-200 ease-in-out",
+              checked ? "translate-x-5" : "translate-x-0",
+            )}
+          />
+        </button>
+      </div>
     </div>
   );
 }
