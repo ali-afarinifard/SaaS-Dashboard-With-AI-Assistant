@@ -11,7 +11,10 @@ interface CustomerTableProps {
   isLoading: boolean;
 }
 
-const statusVariant: Record<CustomerStatus, "success" | "warning" | "destructive" | "outline"> = {
+const statusVariant: Record<
+  CustomerStatus,
+  "success" | "warning" | "destructive" | "outline"
+> = {
   active: "success",
   trial: "warning",
   inactive: "outline",
@@ -36,7 +39,6 @@ export function CustomerTable({ customers, isLoading }: CustomerTableProps) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-secondary/50">
-              {/* استفاده از text-start برای تراز خودکار بر اساس جهت صفحه */}
               <th className="text-start px-5 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 {t("name")}
               </th>
@@ -49,7 +51,6 @@ export function CustomerTable({ customers, isLoading }: CustomerTableProps) {
               <th className="text-start px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
                 {t("joined")}
               </th>
-              {/* فیلد عددی معمولاً در هر دو حالت بهتر است از جهت مخالف تراز شود */}
               <th className="text-end px-5 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 {t("revenue")}
               </th>
@@ -59,42 +60,70 @@ export function CustomerTable({ customers, isLoading }: CustomerTableProps) {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i}>
-                  <td className="px-5 py-4"><div className="skeleton h-4 w-32" /></td>
-                  <td className="px-4 py-4 hidden md:table-cell"><div className="skeleton h-5 w-16" /></td>
-                  <td className="px-4 py-4"><div className="skeleton h-5 w-14" /></td>
-                  <td className="px-4 py-4 hidden lg:table-cell"><div className="skeleton h-4 w-20" /></td>
-                  <td className="px-5 py-4 text-end"><div className="skeleton h-4 w-12 ms-auto" /></td>
+                  <td className="px-5 py-4">
+                    <div className="skeleton h-4 w-32" />
+                  </td>
+                  <td className="px-4 py-4 hidden md:table-cell">
+                    <div className="skeleton h-5 w-16" />
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="skeleton h-5 w-14" />
+                  </td>
+                  <td className="px-4 py-4 hidden lg:table-cell">
+                    <div className="skeleton h-4 w-20" />
+                  </td>
+                  <td className="px-5 py-4 text-end">
+                    <div className="skeleton h-4 w-12 ms-auto" />
+                  </td>
                 </tr>
               ))
             ) : customers?.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-5 py-12 text-center text-muted-foreground italic">
-                  {isRTL ? "مشتری‌ای یافت نشد" : "No customers found"}
+                <td
+                  colSpan={5}
+                  className="px-5 py-12 text-center text-muted-foreground italic"
+                >
+                  {t("noCustomers")}
                 </td>
               </tr>
             ) : (
               customers?.map((customer) => (
-                <tr key={customer.id} className="hover:bg-secondary/30 transition-colors cursor-pointer group">
+                <tr
+                  key={customer.id}
+                  className="hover:bg-secondary/30 transition-colors cursor-pointer group"
+                >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                        {customer.name.charAt(0)}
+                        <span className="relative top-[1px]">
+                          {customer.name.charAt(0)}
+                        </span>
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="font-medium text-sm truncate">{customer.name}</span>
-                        <span className="text-xs text-muted-foreground truncate">{customer.email}</span>
+                        <span className="font-medium text-sm truncate">
+                          {customer.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground truncate">
+                          {customer.email}
+                        </span>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-4 hidden md:table-cell">
-                    <Badge variant={planVariant[customer.plan] as any} className="font-normal relative">
+                    <Badge
+                      variant={planVariant[customer.plan]}
+                      className="font-normal relative"
+                    >
                       <span className="relative top-[1px] capitalize">
-                      {customer.plan}
+                        {customer.plan}
                       </span>
                     </Badge>
                   </td>
                   <td className="px-4 py-4">
-                    <Badge variant={statusVariant[customer.status]} className="capitalize font-normal">
+                    <Badge
+                      variant={statusVariant[customer.status]}
+                      className="capitalize font-normal"
+                    >
                       {t(customer.status)}
                     </Badge>
                   </td>
@@ -105,7 +134,9 @@ export function CustomerTable({ customers, isLoading }: CustomerTableProps) {
                   </td>
                   <td className="px-5 py-4 text-end">
                     <span className="text-sm font-semibold tabular-nums">
-                      {customer.revenue > 0 ? formatCurrency(customer.revenue) : "—"}
+                      {customer.revenue > 0
+                        ? formatCurrency(customer.revenue)
+                        : "—"}
                     </span>
                   </td>
                 </tr>
@@ -114,18 +145,18 @@ export function CustomerTable({ customers, isLoading }: CustomerTableProps) {
           </tbody>
         </table>
       </div>
-      
+
       {!isLoading && customers && customers.length > 0 && (
         <div className="px-5 py-3 border-t border-border bg-secondary/10">
           <p className="text-xs text-muted-foreground">
-            {isRTL ? `نمایش ${customerTableCountFa(customers.length)} مشتری` : `Showing ${customers.length} customers`}
+            {t("showingCustomers", {
+              count: isRTL
+                ? customers.length.toLocaleString("fa-IR")
+                : customers.length,
+            })}
           </p>
         </div>
       )}
     </div>
   );
-}
-
-function customerTableCountFa(n: number) {
-  return n.toLocaleString("fa-IR");
 }

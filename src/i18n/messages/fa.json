@@ -50,7 +50,9 @@
     "active": "فعال",
     "inactive": "غیرفعال",
     "churned": "ریزش",
-    "trial": "آزمایشی"
+    "trial": "آزمایشی",
+    "noCustomers": "مشتری‌ای یافت نشد",
+    "showingCustomers": "نمایش {count} مشتری"
   },
   "reports": {
     "title": "گزارش‌ها",
@@ -142,7 +144,7 @@
     "import": "ورودی",
     "refresh": "بروزرسانی"
   },
-   "commandPalette": {
+  "commandPalette": {
     "navigate": "جابه‌جایی",
     "select": "کلیک",
     "navigation": "لیست صفحات",

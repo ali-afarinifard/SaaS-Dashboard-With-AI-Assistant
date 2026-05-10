@@ -118,7 +118,7 @@ export function Sidebar() {
             <div className="overflow-hidden">
               <p className="text-sm font-medium truncate">Admin User</p>
               <p className="text-xs text-muted-foreground truncate">
-                admin@nexus.io
+                admin@me.io
               </p>
             </div>
           )}

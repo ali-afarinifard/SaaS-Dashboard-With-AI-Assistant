@@ -67,7 +67,7 @@ export function SettingsContent() {
   const [profile, setProfile] = useState({
     firstName: "Admin",
     lastName: "User",
-    email: "admin@nexus.io",
+    email: "admin@me.io",
     role: t("owner"),
   });
   const [savingProfile, setSavingProfile] = useState(false);

@@ -50,7 +50,9 @@
     "active": "Active",
     "inactive": "Inactive",
     "churned": "Churned",
-    "trial": "Trial"
+    "trial": "Trial",
+    "noCustomers": "No customers found",
+    "showingCustomers": "Showing {count} customers"
   },
   "reports": {
     "title": "Reports",
