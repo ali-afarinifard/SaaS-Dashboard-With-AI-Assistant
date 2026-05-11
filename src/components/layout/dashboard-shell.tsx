@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import { Sidebar } from "./sidebar";
 
-// Lazy load heavy AI panel — only loads when user opens it
 const AIChatPanel = dynamic(
   () => import("@/components/ai/chat-panel").then((m) => ({ default: m.AIChatPanel })),
   { ssr: false }
