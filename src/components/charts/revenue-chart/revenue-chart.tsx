@@ -1,5 +1,6 @@
 "use client";
-import { memo } from "react";
+
+import { memo, useMemo } from "react";
 import {
   AreaChart,
   Area,
@@ -11,6 +12,8 @@ import {
 } from "recharts";
 import { useTranslations } from "next-intl";
 import { useRevenueData, type DateRange } from "@/hooks/use-queries";
+import { useSettingsStore } from "@/store";
+import { cn } from "@/lib/utils";
 import { CustomTooltip } from "./custom-tooltip";
 
 export const RevenueChart = memo(function RevenueChart({
@@ -19,9 +22,18 @@ export const RevenueChart = memo(function RevenueChart({
   range?: DateRange;
 }) {
   const t = useTranslations("charts");
-  const { data, isLoading } = useRevenueData(range);
+  const tMonths = useTranslations("months");
 
-  const chartData = data ?? [];
+  const { data, isLoading } = useRevenueData(range);
+  const { locale } = useSettingsStore();
+  const isRTL = locale === "fa";
+
+  const chartData = useMemo(() => {
+    return (data ?? []).map((item) => ({
+      ...item,
+      displayMonth: tMonths(item.month),
+    }));
+  }, [data, tMonths]);
 
   if (isLoading) {
     return (
@@ -33,49 +45,90 @@ export const RevenueChart = memo(function RevenueChart({
   }
 
   return (
-    <div className="bg-card rounded-xl p-5 border border-border card-hover">
+    <div
+      className={cn(
+        "bg-card rounded-xl p-5 border border-border card-hover transition-all",
+        isRTL && "font-vazir",
+      )}
+      dir={isRTL ? "rtl" : "ltr"}
+    >
       <div className="flex items-center justify-between mb-5">
         <h3 className="text-sm font-semibold">{t("revenueOverTime")}</h3>
         <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded-md">
           {t("monthly")}
         </span>
       </div>
-      <ResponsiveContainer width="100%" height={240}>
-        <AreaChart
-          data={chartData}
-          margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
-        >
-          <defs>
-            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="hsl(220, 90%, 60%)" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="hsl(220, 90%, 60%)" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-          <XAxis
-            dataKey="month"
-            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Area
-            type="monotone"
-            dataKey="revenue"
-            stroke="hsl(220, 90%, 60%)"
-            strokeWidth={2}
-            fill="url(#colorRevenue)"
-            isAnimationActive
-            animationDuration={600}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+
+      <div className="h-[240px] w-full" dir="ltr">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart
+            data={chartData}
+            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+          >
+            <defs>
+              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="hsl(var(--primary))"
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="hsl(var(--primary))"
+                  stopOpacity={0}
+                />
+              </linearGradient>
+            </defs>
+
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              className="stroke-border/50"
+            />
+
+            <XAxis
+              dataKey="displayMonth"
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              axisLine={false}
+              tickLine={false}
+              reversed={isRTL}
+              dy={10}
+            />
+
+            <YAxis
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              axisLine={false}
+              tickLine={false}
+              orientation={isRTL ? "right" : "left"}
+              tickFormatter={(v) =>
+                isRTL
+                  ? `${v.toLocaleString("fa-IR")}`
+                  : `$${(v / 1000).toFixed(0)}k`
+              }
+            />
+
+            <Tooltip
+              content={<CustomTooltip isRTL={isRTL} />}
+              cursor={{
+                stroke: "hsl(var(--primary))",
+                strokeWidth: 1,
+                strokeDasharray: "4 4",
+              }}
+            />
+
+            <Area
+              type="monotone"
+              dataKey="revenue"
+              stroke="hsl(var(--primary))"
+              strokeWidth={2.5}
+              fill="url(#colorRevenue)"
+              isAnimationActive
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 });
+
+RevenueChart.displayName = "RevenueChart";
