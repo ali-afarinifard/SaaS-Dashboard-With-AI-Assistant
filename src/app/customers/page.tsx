@@ -1,5 +1,5 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { Topbar } from "@/components/layout/topbar";
+import { Topbar } from "@/components/layout/topbar/topbar";
 import { CustomersContent } from "./customers-content";
 import { getTranslations } from "next-intl/server";
 
