@@ -3,6 +3,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
 import { Providers } from "@/components/layout/providers";
 import NextTopLoader from "nextjs-toploader";
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { DM_Sans, Vazirmatn } from "next/font/google";
 import "./globals.css";
 
@@ -44,7 +46,11 @@ export default async function RootLayout({
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
-          <Providers>{children}</Providers>
+          <Providers>
+            {children}
+            <Analytics />
+            <SpeedInsights />
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>
