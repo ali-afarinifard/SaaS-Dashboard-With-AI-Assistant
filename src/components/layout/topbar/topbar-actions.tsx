@@ -15,16 +15,17 @@ interface TopbarActionsProps {
 export function TopbarActions({ onSearchOpen, mounted }: TopbarActionsProps) {
   const { theme, setTheme } = useTheme();
   const t = useTranslations("common");
-  const { locale, setLocale } = useSettingsStore();
+  const { locale } = useSettingsStore();
 
   const toggleTheme = useCallback(() => {
     setTheme(theme === "dark" ? "light" : "dark");
   }, [theme, setTheme]);
 
   const toggleLocale = useCallback(() => {
-    setLocale(locale === "en" ? "fa" : "en");
+    const newLocale = locale === "en" ? "fa" : "en";
+    document.cookie = `locale=${newLocale};path=/;max-age=31536000`;
     window.location.reload();
-  }, [locale, setLocale]);
+  }, [locale]);
 
   return (
     <div className="flex items-center gap-2">

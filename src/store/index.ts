@@ -3,6 +3,18 @@ import { persist } from "zustand/middleware";
 import type { ChatMessage, Locale, Theme } from "@/types";
 import { generateId } from "@/lib/utils";
 
+function getCookie(name: string): string | undefined {
+  return document.cookie
+    .split(";")
+    .map((c) => c.trim())
+    .find((c) => c.startsWith(`${name}=`))
+    ?.split("=")[1];
+}
+
+function setLocaleCookie(locale: string) {
+  document.cookie = `locale=${locale};path=/;max-age=31536000`;
+}
+
 // ─── UI Store
 interface UIState {
   sidebarOpen: boolean;
@@ -31,12 +43,19 @@ export const useSettingsStore = create<SettingsState>()(
       locale: "en",
       setTheme: (theme) => set({ theme }),
       setLocale: (locale) => {
-        set({ locale });
-        // Sync with cookie for next-intl
-        document.cookie = `locale=${locale};path=/;max-age=31536000`;
+        setLocaleCookie(locale);
       },
     }),
-    { name: "saas-dashboard-settings" }
+    {
+      name: "saas-dashboard-settings",
+      partialize: (state) => ({ theme: state.theme }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          const cookieLocale = getCookie("locale") as Locale | undefined;
+          state.locale = cookieLocale ?? "en";
+        }
+      },
+    }
   )
 );
 
@@ -70,7 +89,7 @@ export const useChatStore = create<ChatState>((set) => ({
   updateMessage: (id, content, isLoading = false) =>
     set((s) => ({
       messages: s.messages.map((m) =>
-        m.id === id ? { ...m, content, isLoading } : m
+        m.id === id ? { ...m, content, isLoading } : m,
       ),
     })),
   removeMessage: (id) =>
