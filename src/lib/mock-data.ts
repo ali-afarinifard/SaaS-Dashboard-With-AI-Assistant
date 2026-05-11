@@ -66,7 +66,7 @@ export const featureUsage: FeatureUsage[] = [
 export const customers: Customer[] = [
   {
     id: "c1",
-    name: "Sarah Johnson",
+    name: "Sarah Rezaei",
     email: "sarah@techcorp.io",
     plan: "enterprise",
     status: "active",
@@ -77,8 +77,8 @@ export const customers: Customer[] = [
   },
   {
     id: "c2",
-    name: "Marcus Chen",
-    email: "m.chen@startupx.com",
+    name: "Ali Miramir",
+    email: "ali@startupx.com",
     plan: "business",
     status: "active",
     joinedAt: "2023-06-22",
@@ -88,8 +88,8 @@ export const customers: Customer[] = [
   },
   {
     id: "c3",
-    name: "Aisha Patel",
-    email: "aisha@designhub.co",
+    name: "Sohrab Miri",
+    email: "sohrab@designhub.co",
     plan: "pro",
     status: "trial",
     joinedAt: "2026-04-28",
@@ -99,7 +99,7 @@ export const customers: Customer[] = [
   },
   {
     id: "c4",
-    name: "Lars Müller",
+    name: "Reza Moradi",
     email: "lars@euroventures.de",
     plan: "business",
     status: "active",
@@ -110,8 +110,8 @@ export const customers: Customer[] = [
   },
   {
     id: "c5",
-    name: "Fatima Al-Rashid",
-    email: "fatima@menatec.ae",
+    name: "Zaynab Amani",
+    email: "z.amani@menatec.ae",
     plan: "enterprise",
     status: "active",
     joinedAt: "2022-11-18",
@@ -132,8 +132,8 @@ export const customers: Customer[] = [
   },
   {
     id: "c7",
-    name: "Yuki Tanaka",
-    email: "y.tanaka@nextstep.jp",
+    name: "Sina Mohammadi",
+    email: "sina@nextstep.jp",
     plan: "starter",
     status: "active",
     joinedAt: "2024-02-14",
@@ -143,8 +143,8 @@ export const customers: Customer[] = [
   },
   {
     id: "c8",
-    name: "Elena Rossi",
-    email: "e.rossi@creativemind.it",
+    name: "Elina Shahmoradi",
+    email: "e.shamoradi@me.it",
     plan: "pro",
     status: "churned",
     joinedAt: "2023-05-30",
@@ -155,7 +155,7 @@ export const customers: Customer[] = [
   {
     id: "c9",
     name: "Carlos Mendoza",
-    email: "carlos@latamgrowth.mx",
+    email: "carlos@me.mx",
     plan: "business",
     status: "active",
     joinedAt: "2024-01-08",
@@ -165,8 +165,8 @@ export const customers: Customer[] = [
   },
   {
     id: "c10",
-    name: "Nina Kowalski",
-    email: "nina@techwave.pl",
+    name: "Faezeh Alimardani",
+    email: "faezeh@me.pl",
     plan: "starter",
     status: "active",
     joinedAt: "2024-04-19",

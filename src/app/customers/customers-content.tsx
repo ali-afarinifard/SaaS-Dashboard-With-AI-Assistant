@@ -8,7 +8,13 @@ import { downloadCSV } from "@/lib/download";
 import { cn } from "@/lib/utils";
 import { CustomerTable } from "@/components/ui/customer-table";
 
-const STATUS_OPTIONS = ["all", "active", "trial", "inactive", "churned"] as const;
+const STATUS_OPTIONS = [
+  "all",
+  "active",
+  "trial",
+  "inactive",
+  "churned",
+] as const;
 type StatusOption = (typeof STATUS_OPTIONS)[number];
 
 export function CustomersContent() {
@@ -27,12 +33,14 @@ export function CustomersContent() {
       "Name,Email,Plan,Status,Joined,Revenue",
       ...customers.map(
         (c) =>
-          `${c.name},${c.email},${c.plan},${c.status},${c.joinedAt},${c.revenue}`,
+          `${c.name},${c.email},${c.plan},${c.status},${c.joinedAt},${
+            isRTL ? c.revenue.toLocaleString("fa-IR") : c.revenue
+          }`,
       ),
     ].join("\n");
 
     downloadCSV("customers", csv);
-  }, [customers]);
+  }, [customers, isRTL]);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value),
@@ -88,14 +96,11 @@ export function CustomersContent() {
             className="flex items-center gap-2 px-4 py-2 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
           >
             <Download className="w-3.5 h-3.5" />
-            <span className="relative top-[1px]">
-            {t("export")}
-            </span>
+            <span className="relative top-[1px]">{t("export")}</span>
           </button>
         </div>
       </div>
 
-      {/* Table */}
       <CustomerTable customers={customers} isLoading={isLoading} />
     </div>
   );

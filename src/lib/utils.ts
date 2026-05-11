@@ -6,18 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(
-  value: number,
-  currency = "USD",
-  locale = "en-US",
-): string {
-  return new Intl.NumberFormat(locale, {
+export const formatCurrency = (value: number, locale: string = "en-US") => {
+  return new Intl.NumberFormat(locale === "fa" ? "fa-IR" : "en-US", {
     style: "currency",
-    currency,
-    minimumFractionDigits: 0,
+    currency: "USD",
     maximumFractionDigits: 0,
   }).format(value);
-}
+};
 
 export function formatPercent(
   value: number,

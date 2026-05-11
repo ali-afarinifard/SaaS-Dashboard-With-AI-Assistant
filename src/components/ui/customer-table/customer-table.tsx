@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatDateLocale } from "@/lib/utils";
+import { cn, formatCurrency, formatDateLocale } from "@/lib/utils";
 import { useSettingsStore } from "@/store";
 import type { Customer, CustomerStatus, PlanType } from "@/types";
 
@@ -73,7 +73,12 @@ export function CustomerTable({ customers, isLoading }: CustomerTableProps) {
                     <div className="skeleton h-4 w-20" />
                   </td>
                   <td className="px-5 py-4 text-end">
-                    <div className="skeleton h-4 w-12 ms-auto" />
+                    <div
+                      className={cn(
+                        "skeleton h-4 w-12",
+                        isRTL ? "me-auto" : "ms-auto",
+                      )}
+                    />
                   </td>
                 </tr>
               ))
@@ -135,7 +140,7 @@ export function CustomerTable({ customers, isLoading }: CustomerTableProps) {
                   <td className="px-5 py-4 text-end">
                     <span className="text-sm font-semibold tabular-nums">
                       {customer.revenue > 0
-                        ? formatCurrency(customer.revenue)
+                        ? formatCurrency(customer.revenue, locale)
                         : "—"}
                     </span>
                   </td>
