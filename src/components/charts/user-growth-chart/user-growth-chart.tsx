@@ -28,7 +28,6 @@ export const UserGrowthChart = memo(function UserGrowthChart({
   const { locale } = useSettingsStore();
   const isRTL = locale === "fa";
 
-  // نگاشت نام ماه‌ها از فایل JSON
   const chartData = useMemo(() => {
     return (data ?? []).map((item) => ({
       ...item,
@@ -76,21 +75,20 @@ export const UserGrowthChart = memo(function UserGrowthChart({
               tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
-              reversed={isRTL} // معکوس کردن جهت برای RTL
+              reversed={isRTL}
               dy={10}
             />
             <YAxis
               tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
-              orientation={isRTL ? "right" : "left"} // انتقال محور به راست در فارسی
+              orientation={isRTL ? "right" : "left"}
               tickFormatter={(v) => isRTL ? v.toLocaleString("fa-IR") : v.toLocaleString()}
             />
             <Tooltip
               content={
                 <CustomTooltip
                   isRTL={isRTL}
-                  // پاس دادن تابع فرمت‌بندی اعداد به صورت فارسی/انگلیسی
                   valueFormatter={(v) => 
                     isRTL ? v.toLocaleString("fa-IR") : v.toLocaleString()
                   }
