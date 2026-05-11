@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import type { ChatMessage, Locale, Theme } from "@/types";
 import { generateId } from "@/lib/utils";
 
-// ─── UI Store ────────────────────────────────────────────────────────────────
+// ─── UI Store
 interface UIState {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
@@ -16,7 +16,7 @@ export const useUIStore = create<UIState>((set) => ({
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
 }));
 
-// ─── Settings Store ───────────────────────────────────────────────────────────
+// ─── Settings Store
 interface SettingsState {
   theme: Theme;
   locale: Locale;
@@ -40,7 +40,7 @@ export const useSettingsStore = create<SettingsState>()(
   )
 );
 
-// ─── AI Chat Store ─────────────────────────────────────────────────────────
+// ─── AI Chat Store
 interface ChatState {
   messages: ChatMessage[];
   isOpen: boolean;

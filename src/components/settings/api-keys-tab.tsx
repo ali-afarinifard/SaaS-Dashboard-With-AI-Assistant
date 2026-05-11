@@ -4,13 +4,7 @@ import { useTranslations } from "next-intl";
 import { Key, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 import { mockApi } from "@/lib/mock-api";
-
-interface ApiKey {
-  id: string;
-  name: string;
-  key: string;
-  created: string;
-}
+import { ApiKey } from "@/types";
 
 export function ApiKeysTab() {
   const t = useTranslations("settings");

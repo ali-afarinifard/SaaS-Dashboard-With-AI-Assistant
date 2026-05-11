@@ -222,8 +222,7 @@ export const dashboardMetrics = {
   avgSessionTime: { value: "8m 42s", change: 12.3 },
 };
 
-// ─── Date-range filtered data ────────────────────────────────────────────────
-
+// ─── Date-range filtered data
 export type DateRange = "7d" | "30d" | "90d";
 
 export function getRevenueByRange(range: DateRange) {

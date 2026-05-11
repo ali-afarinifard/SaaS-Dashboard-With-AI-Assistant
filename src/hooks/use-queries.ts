@@ -1,12 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  revenueData,
-  userGrowthData,
   planDistribution,
   trafficSources,
   featureUsage,
   customers,
-  dashboardMetrics,
   reports,
   getRevenueByRange,
   getUserGrowthByRange,

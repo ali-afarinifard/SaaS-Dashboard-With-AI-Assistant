@@ -96,6 +96,13 @@ export interface Report {
 export type Theme = "light" | "dark" | "system";
 export type Locale = "en" | "fa";
 
+export interface ApiKey {
+  id: string;
+  name: string;
+  key: string;
+  created: string;
+}
+
 export interface UserSettings {
   theme: Theme;
   locale: Locale;

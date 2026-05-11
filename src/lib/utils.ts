@@ -1,5 +1,5 @@
+// src/lib/utils.ts
 import { type ClassValue, clsx } from "clsx";
-import { useLocale } from "next-intl";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export function formatCurrency(
   value: number,
   currency = "USD",
-  locale = "en-US"
+  locale = "en-US",
 ): string {
   return new Intl.NumberFormat(locale, {
     style: "currency",
@@ -19,18 +19,22 @@ export function formatCurrency(
   }).format(value);
 }
 
-export function formatNumber(value: number, locale = "en-US"): string {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  }
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(1)}K`;
-  }
-  return new Intl.NumberFormat(locale).format(value);
-}
+export function formatPercent(
+  value: number,
+  locale: string = "en",
+  decimals = 1,
+): string {
+  const isFa = locale.startsWith("fa");
+  const formattedValue = Math.abs(value).toLocaleString(
+    isFa ? "fa-IR" : "en-US",
+    {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    },
+  );
 
-export function formatPercent(value: number, decimals = 1): string {
-  return `${value >= 0 ? "+" : ""}${value.toFixed(decimals)}%`;
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+  return isFa ? `${sign}${formattedValue}٪` : `${sign}${formattedValue}%`;
 }
 
 export function formatDate(date: string | Date, locale = "en-US"): string {
@@ -63,7 +67,6 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-
 export function formatDateLocale(date: string | Date, locale: string): string {
   const localeMap: Record<string, string> = { fa: "fa-IR", en: "en-US" };
   return new Intl.DateTimeFormat(localeMap[locale] ?? "en-US", {
@@ -84,23 +87,3 @@ export function getTextDirection(text: string): "rtl" | "ltr" {
   }
   return "ltr";
 }
-
-// export function useFormatDate() {
-//   const locale = useLocale();
-
-//   return (dateStr: string) => {
-//     const date = new Date(dateStr);
-//     if (locale === "fa") {
-//       return new Intl.DateTimeFormat("fa-IR", {
-//         year: "numeric",
-//         month: "short",
-//         day: "numeric",
-//       }).format(date);
-//     }
-//     return new Intl.DateTimeFormat("en-US", {
-//       year: "numeric",
-//       month: "short",
-//       day: "numeric",
-//     }).format(date);
-//   };
-// }

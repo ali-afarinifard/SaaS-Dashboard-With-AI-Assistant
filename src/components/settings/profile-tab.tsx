@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { Globe, Save, Camera, Loader2, Sun, Moon, Monitor } from "lucide-react";
@@ -25,11 +25,36 @@ export function ProfileTab({ mounted }: ProfileTabProps) {
   });
   const [savingProfile, setSavingProfile] = useState(false);
 
-  const themeOptions = [
-    { value: "light", label: t("light"), icon: Sun },
-    { value: "dark", label: t("dark"), icon: Moon },
-    { value: "system", label: t("system"), icon: Monitor },
-  ];
+  const themeOptions = useMemo(
+    () => [
+      { value: "light", label: t("light"), icon: Sun },
+      { value: "dark", label: t("dark"), icon: Moon },
+      { value: "system", label: t("system"), icon: Monitor },
+    ],
+    [t],
+  );
+
+  const PROFILE_FIELDS = [
+    { field: "firstName" as const },
+    { field: "lastName" as const },
+    { field: "email" as const },
+    { field: "role" as const },
+  ] satisfies { field: "firstName" | "lastName" | "email" | "role" }[];
+
+  
+  const profileFields = useMemo(
+    () =>
+      PROFILE_FIELDS.map(({ field }) => ({
+        field,
+        label: t(field),
+      })),
+      [t],
+    );
+    
+    const LOCALE_OPTIONS = [
+      { value: "en" as const, label: "English" },
+      { value: "fa" as const, label: "فارسی" },
+    ] as const;
 
   const handleSaveProfile = useCallback(async () => {
     setSavingProfile(true);
@@ -101,14 +126,7 @@ export function ProfileTab({ mounted }: ProfileTabProps) {
 
         {/* Fields */}
         <div className="grid grid-cols-2 gap-4">
-          {(
-            [
-              { label: t("firstName"), field: "firstName" as const },
-              { label: t("lastName"), field: "lastName" as const },
-              { label: t("email"), field: "email" as const },
-              { label: t("role"), field: "role" as const },
-            ] as const
-          ).map(({ label, field }) => (
+          {profileFields.map(({ label, field }) => (
             <div key={field}>
               <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                 {label}
@@ -158,12 +176,7 @@ export function ProfileTab({ mounted }: ProfileTabProps) {
               {t("language")}
             </label>
             <div className="flex gap-2">
-              {(
-                [
-                  { value: "en" as const, label: "English" },
-                  { value: "fa" as const, label: "فارسی" },
-                ] as const
-              ).map(({ value, label }) => (
+              {LOCALE_OPTIONS.map(({ value, label }) => (
                 <button
                   key={value}
                   onClick={() => handleLocaleChange(value)}
