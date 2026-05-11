@@ -1,55 +1,45 @@
 "use client";
 
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: any[];
-  label?: string;
+import { memo } from "react";
+import type { TooltipProps } from "recharts";
+import { cn } from "@/lib/utils";
+
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  valueFormatter?: (value: number) => string;
   isRTL?: boolean;
 }
 
-export const CustomTooltip = ({
+export const CustomTooltip = memo(function CustomTooltip({
   active,
   payload,
   label,
-  isRTL,
-}: CustomTooltipProps) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-popover border border-border p-3 rounded-lg shadow-xl backdrop-blur-md">
-        <p className="text-xs font-bold mb-2 text-foreground">{label}</p>
+  valueFormatter,
+  isRTL = false,
+}: CustomTooltipProps) {
+  if (!active || !payload?.length) return null;
 
-        <div className="space-y-1.5">
-          {payload.map((entry: any, index: number) => (
-            <div
-              key={index}
-              className="flex items-center gap-3 justify-between"
-            >
-              <span className="text-[11px] font-mono font-medium text-foreground">
-                {isRTL
-                  ? `${entry.value.toLocaleString("fa-IR")} دلار`
-                  : `$${entry.value.toLocaleString()}`}
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-muted-foreground">
-                  {entry.name === "revenue"
-                    ? isRTL
-                      ? "درآمد"
-                      : "Revenue"
-                    : entry.name}
-                </span>
-                <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: entry.color || entry.stroke }}
-                />
-              </div>
+  return (
+    <div 
+      className={cn(
+        "bg-popover/95 border border-border p-3 rounded-lg shadow-xl backdrop-blur-md transition-all",
+        isRTL ? "text-right" : "text-left"
+      )}
+      dir={isRTL ? "rtl" : "ltr"}
+    >
+      <p className="text-muted-foreground text-[11px] mb-2 font-medium">{label}</p>
+      <div className="space-y-1.5">
+        {payload.map((entry) => (
+          <div key={entry.name} className="flex items-center justify-between gap-6">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full" style={{ background: entry.color }} />
+              <span className="text-[11px] text-foreground/80">{entry.name}:</span>
             </div>
-          ))}
-        </div>
+            <span className="text-xs font-bold tabular-nums">
+              {valueFormatter ? valueFormatter(entry.value as number) : entry.value}
+            </span>
+          </div>
+        ))}
       </div>
-    );
-  }
-
-  return null;
-};
-
-CustomTooltip.displayName = "CustomTooltip";
+    </div>
+  );
+});
