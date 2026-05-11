@@ -12,8 +12,6 @@ import {
 } from "lucide-react";
 import { useReports } from "@/hooks/use-queries";
 import { Badge } from "@/components/ui/badge";
-import { RevenueChart } from "@/components/charts/revenue-chart";
-import { UserGrowthChart } from "@/components/charts/user-growth-chart";
 import { DateRangeSelector } from "@/components/ui/date-range-selector";
 import { formatDateLocale } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
@@ -21,6 +19,8 @@ import { useSettingsStore } from "@/store";
 import type { DateRange } from "@/hooks/use-queries";
 import { cn } from "@/lib/utils";
 import { downloadCSV } from "@/lib/download";
+import { RevenueChart } from "@/components/charts/revenue-chart";
+import { UserGrowthChart } from "@/components/charts/user-growth-chart";
 
 const DATE_RANGE_VALUES: DateRange[] = ["7d", "30d", "90d"];
 

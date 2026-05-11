@@ -1,6 +1,5 @@
 "use client";
-
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import {
   BarChart,
   Bar,
@@ -8,36 +7,11 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import { useTranslations } from "next-intl";
 import { useUserGrowthData, type DateRange } from "@/hooks/use-queries";
-
-const CustomTooltip = memo(function CustomTooltip({
-  active,
-  payload,
-  label,
-}: any) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="custom-tooltip">
-      <p className="text-muted-foreground text-xs mb-2">{label}</p>
-      {payload.map((p: any) => (
-        <div key={p.name} className="flex items-center gap-2">
-          <span
-            className="w-2 h-2 rounded-full"
-            style={{ background: p.color }}
-          />
-          <span className="text-xs capitalize">{p.name}:</span>
-          <span className="text-xs font-semibold">
-            {p.value.toLocaleString()}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-});
+import { CustomTooltip } from "./custom-tooltip";
 
 export const UserGrowthChart = memo(function UserGrowthChart({
   range = "30d",
@@ -46,7 +20,8 @@ export const UserGrowthChart = memo(function UserGrowthChart({
 }) {
   const t = useTranslations("charts");
   const { data, isLoading } = useUserGrowthData(range);
-  const chartData = useMemo(() => data ?? [], [data]);
+
+  const chartData = data ?? [];
 
   if (isLoading) {
     return (
@@ -82,7 +57,13 @@ export const UserGrowthChart = memo(function UserGrowthChart({
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip
+            content={
+              <CustomTooltip
+                valueFormatter={(v) => v.toLocaleString()}
+              />
+            }
+          />
           <Bar
             dataKey="new"
             fill="hsl(220, 90%, 60%)"
