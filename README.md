@@ -120,7 +120,7 @@ npm run type-check   # Run TypeScript type checker
 
 Deploy instantly on [Vercel](https://vercel.com):
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+[![Deploy with Vercel](https://vercel.com/button)](https://saas-dashboard-with-ai-assistant.vercel.app)
 
 Remember to add `GAPGPT_API_KEY` to your Vercel environment variables.
 
