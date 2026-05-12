@@ -15,10 +15,10 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { useDashboardMetrics } from "@/hooks/use-queries";
 import type { DateRange } from "@/hooks/use-queries";
 import { DateRangeSelector } from "@/components/ui/date-range-selector";
-import { PlanDistributionChart } from "@/components/charts/plan-distribution-chart";
 import { FeatureUsageChart } from "@/components/charts/feature-usage-chart";
-import { RevenueChart } from "@/components/charts/revenue-chart";
-import { UserGrowthChart } from "@/components/charts/user-growth-chart";
+import { RevenueChart } from "@/components/charts/revenue-chart/revenue-chart";
+import { UserGrowthChart } from "@/components/charts/user-growth-chart/user-growth-chart";
+import { PlanDistributionChart } from "@/components/charts/plan-distribution-chart/plan-distribution-chart";
 
 export function DashboardContent() {
   const t = useTranslations("metrics");
