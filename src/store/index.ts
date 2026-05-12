@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { ChatMessage, Locale, Theme } from "@/types";
+import type { IChatMessage, Locale, Theme } from "@/types";
 import { generateId } from "@/lib/utils";
 
 function getCookie(name: string): string | undefined {
@@ -16,27 +16,27 @@ function setLocaleCookie(locale: string) {
 }
 
 // ─── UI Store
-interface UIState {
+interface IUIState {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
 }
 
-export const useUIStore = create<UIState>((set) => ({
+export const useUIStore = create<IUIState>((set) => ({
   sidebarOpen: true,
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
 }));
 
 // ─── Settings Store
-interface SettingsState {
+interface ISettingsState {
   theme: Theme;
   locale: Locale;
   setTheme: (theme: Theme) => void;
   setLocale: (locale: Locale) => void;
 }
 
-export const useSettingsStore = create<SettingsState>()(
+export const useSettingsStore = create<ISettingsState>()(
   persist(
     (set) => ({
       theme: "dark",
@@ -61,10 +61,10 @@ export const useSettingsStore = create<SettingsState>()(
 
 // ─── AI Chat Store
 interface ChatState {
-  messages: ChatMessage[];
+  messages: IChatMessage[];
   isOpen: boolean;
   isLoading: boolean;
-  addMessage: (role: ChatMessage["role"], content: string) => string;
+  addMessage: (role: IChatMessage["role"], content: string) => string;
   updateMessage: (id: string, content: string, isLoading?: boolean) => void;
   removeMessage: (id: string) => void;
   clearMessages: () => void;

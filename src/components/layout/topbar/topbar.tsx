@@ -3,12 +3,12 @@ import { useState, useEffect, useCallback } from "react";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { TopbarActions } from "./topbar-actions";
 
-interface TopbarProps {
+interface ITopbarProps {
   title: string;
   subtitle?: string;
 }
 
-export function Topbar({ title, subtitle }: TopbarProps) {
+export function Topbar({ title, subtitle }: ITopbarProps) {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 

@@ -7,12 +7,12 @@ import { NotificationDropdown } from "@/components/ui/notification-dropdown";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
-interface TopbarActionsProps {
+interface ITopbarActionsProps {
   onSearchOpen: () => void;
   mounted: boolean;
 }
 
-export function TopbarActions({ onSearchOpen, mounted }: TopbarActionsProps) {
+export function TopbarActions({ onSearchOpen, mounted }: ITopbarActionsProps) {
   const { theme, setTheme } = useTheme();
   const t = useTranslations("common");
   const { locale } = useSettingsStore();

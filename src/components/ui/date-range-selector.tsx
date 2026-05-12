@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import type { DateRange } from "@/hooks/use-queries";
 
-interface DateRangeSelectorProps {
+interface IDateRangeSelectorProps {
   value: DateRange;
   onChange: (range: DateRange) => void;
   ranges: { value: DateRange; label: string }[];
@@ -13,7 +13,7 @@ export function DateRangeSelector({
   value,
   onChange,
   ranges,
-}: DateRangeSelectorProps) {
+}: IDateRangeSelectorProps) {
   return (
     <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
       {ranges.map((r) => (

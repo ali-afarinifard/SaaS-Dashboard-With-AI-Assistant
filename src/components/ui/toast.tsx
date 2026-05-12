@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export type ToastType = "success" | "error" | "info" | "warning";
 
-export interface Toast {
+export interface IToast {
   id: string;
   type: ToastType;
   title: string;
@@ -15,12 +15,12 @@ export interface Toast {
 }
 
 // Global toast state (simple pub/sub)
-type ToastListener = (toast: Toast) => void;
+type ToastListener = (toast: IToast) => void;
 const listeners: ToastListener[] = [];
 
-export function toast(options: Omit<Toast, "id">) {
+export function toast(options: Omit<IToast, "id">) {
   const id = Math.random().toString(36).slice(2);
-  const t: Toast = { duration: 4000, ...options, id };
+  const t: IToast = { duration: 4000, ...options, id };
   listeners.forEach((fn) => fn(t));
   return id;
 }
@@ -52,7 +52,7 @@ function ToastItem({
   toast: t,
   onRemove,
 }: {
-  toast: Toast;
+  toast: IToast;
   onRemove: (id: string) => void;
 }) {
   const Icon = icons[t.type];
@@ -91,9 +91,9 @@ function ToastItem({
 }
 
 export function ToastProvider() {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toasts, setToasts] = useState<IToast[]>([]);
 
-  const addToast = useCallback((t: Toast) => {
+  const addToast = useCallback((t: IToast) => {
     setToasts((prev) => [...prev.slice(-4), t]);
   }, []);
 

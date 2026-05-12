@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 
-interface ToggleSwitchProps {
+interface IToggleSwitchProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
@@ -15,7 +15,7 @@ export function ToggleSwitch({
   disabled = false,
   label,
   description,
-}: ToggleSwitchProps) {
+}: IToggleSwitchProps) {
   return (
     <div className="flex items-center justify-between gap-4">
       {(label || description) && (

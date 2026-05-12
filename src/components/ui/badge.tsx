@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 type BadgeVariant = "default" | "success" | "warning" | "destructive" | "outline" | "secondary";
 
-interface BadgeProps {
+interface IBadgeProps {
   children: React.ReactNode;
   variant?: BadgeVariant;
   className?: string;
@@ -17,7 +17,7 @@ const variants: Record<BadgeVariant, string> = {
   secondary: "bg-secondary text-secondary-foreground",
 };
 
-export function Badge({ children, variant = "default", className }: BadgeProps) {
+export function Badge({ children, variant = "default", className }: IBadgeProps) {
   return (
     <span
       className={cn(

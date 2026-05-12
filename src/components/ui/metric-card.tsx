@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn, formatPercent } from "@/lib/utils";
 import { useSettingsStore } from "@/store";
 
-interface MetricCardProps {
+interface IMetricCardProps {
   label: string;
   value: string | number;
   change?: number;
@@ -23,7 +23,7 @@ export const MetricCard = memo(function MetricCard({
   description,
   icon,
   loading = false,
-}: MetricCardProps) {
+}: IMetricCardProps) {
   const locale = useSettingsStore((state) => state.locale);
   const isRTL = locale === "fa";
 

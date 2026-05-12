@@ -4,7 +4,7 @@ import { memo } from "react";
 import type { TooltipProps } from "recharts";
 import { cn } from "@/lib/utils";
 
-interface CustomTooltipProps extends TooltipProps<number, string> {
+interface ICustomTooltipProps extends TooltipProps<number, string> {
   valueFormatter?: (value: number) => string;
   isRTL?: boolean;
 }
@@ -15,7 +15,7 @@ export const CustomTooltip = memo(function CustomTooltip({
   label,
   valueFormatter,
   isRTL = false,
-}: CustomTooltipProps) {
+}: ICustomTooltipProps) {
   if (!active || !payload?.length) return null;
 
   return (

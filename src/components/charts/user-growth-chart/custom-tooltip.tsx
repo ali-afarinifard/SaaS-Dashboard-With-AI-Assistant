@@ -5,7 +5,7 @@ import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { cn } from "@/lib/utils";
 
-interface CustomTooltipProps extends TooltipProps<ValueType, NameType> {
+interface ICustomTooltipProps extends TooltipProps<ValueType, NameType> {
   valueFormatter?: (value: number) => string;
   isRTL?: boolean;
 }
@@ -16,7 +16,7 @@ export const CustomTooltip = memo(function CustomTooltip({
   label,
   valueFormatter,
   isRTL = false,
-}: CustomTooltipProps) {
+}: ICustomTooltipProps) {
   if (!active || !payload?.length) return null;
 
   return (

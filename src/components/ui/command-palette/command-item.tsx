@@ -2,7 +2,7 @@
 import { memo } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { CommandItemProps } from "./types";
+import type { ICommandItemProps } from "./types";
 
 export const CommandItem = memo(({
   cmd,
@@ -10,7 +10,7 @@ export const CommandItem = memo(({
   isRTL,
   itemRef,
   onMouseEnter,
-}: CommandItemProps) => {
+}: ICommandItemProps) => {
   const Icon = cmd.icon;
 
   return (

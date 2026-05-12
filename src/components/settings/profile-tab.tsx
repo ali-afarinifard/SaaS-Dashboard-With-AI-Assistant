@@ -8,11 +8,11 @@ import { toast } from "@/components/ui/toast";
 import { mockApi } from "@/lib/mock-api";
 import { cn } from "@/lib/utils";
 
-interface ProfileTabProps {
+interface IProfileTabProps {
   mounted: boolean;
 }
 
-export function ProfileTab({ mounted }: ProfileTabProps) {
+export function ProfileTab({ mounted }: IProfileTabProps) {
   const t = useTranslations("settings");
   const { theme, setTheme } = useTheme();
   const { locale, setLocale } = useSettingsStore();

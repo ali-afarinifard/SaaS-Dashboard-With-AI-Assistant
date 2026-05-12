@@ -4,10 +4,10 @@ import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatCurrency, formatDateLocale } from "@/lib/utils";
 import { useSettingsStore } from "@/store";
-import type { Customer, CustomerStatus, PlanType } from "@/types";
+import { CustomerStatus, ICustomer, PlanType } from "@/types";
 
-interface CustomerTableProps {
-  customers: Customer[] | undefined;
+interface ICustomerTableProps {
+  customers: ICustomer[] | undefined;
   isLoading: boolean;
 }
 
@@ -28,7 +28,7 @@ const planVariant: Record<PlanType, "default" | "secondary"> = {
   enterprise: "default",
 };
 
-export function CustomerTable({ customers, isLoading }: CustomerTableProps) {
+export function CustomerTable({ customers, isLoading }: ICustomerTableProps) {
   const t = useTranslations("customers");
   const { locale } = useSettingsStore();
   const isRTL = locale === "fa";

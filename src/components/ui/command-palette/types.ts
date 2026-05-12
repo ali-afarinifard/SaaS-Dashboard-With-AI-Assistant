@@ -1,4 +1,4 @@
-export interface Command {
+export interface ICommand {
   id: string;
   label: string;
   description?: string;
@@ -7,13 +7,13 @@ export interface Command {
   group: string;
 }
 
-export interface CommandPaletteProps {
+export interface ICommandPaletteProps {
   open: boolean;
   onClose: () => void;
 }
 
-export interface CommandItemProps {
-  cmd: Command;
+export interface ICommandItemProps {
+  cmd: ICommand;
   isSelected: boolean;
   currentIndex: number;
   isRTL: boolean;
@@ -21,9 +21,9 @@ export interface CommandItemProps {
   onMouseEnter: () => void;
 }
 
-export interface CommandGroupProps {
+export interface ICommandGroupProps {
   group: string;
-  items: Command[];
+  items: ICommand[];
   startIndex: number;
   selected: number;
   isRTL: boolean;

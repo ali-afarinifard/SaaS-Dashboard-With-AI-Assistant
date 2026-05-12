@@ -12,11 +12,11 @@ export function TeamTab() {
     { id: "m1", name: "Admin User", email: "admin@nexus.io", role: t("owner") },
     {
       id: "m2",
-      name: "Sarah Miller",
-      email: "sarah@nexus.io",
+      name: "Sarah Mohammad",
+      email: "sarah.mohammadi@techcorp.io",
       role: t("admin"),
     },
-    { id: "m3", name: "John Doe", email: "john@nexus.io", role: t("member") },
+    { id: "m3", name: "Ali Farmani", email: "a.farmani@me.io", role: t("member") },
   ]);
   const [removingMember, setRemovingMember] = useState<string | null>(null);
   const [inviting, setInviting] = useState(false);

@@ -1,14 +1,14 @@
 import type {
-  Customer,
-  RevenueDataPoint,
-  UserGrowthDataPoint,
-  PlanDistribution,
-  TrafficSource,
-  FeatureUsage,
-  Report,
+  ICustomer,
+  IRevenueDataPoint,
+  IUserGrowthDataPoint,
+  IPlanDistribution,
+  ITrafficSource,
+  IFeatureUsage,
+  IReport,
 } from "@/types";
 
-export const revenueData: RevenueDataPoint[] = [
+export const revenueData: IRevenueDataPoint[] = [
   { month: "Jan", revenue: 42000, mrr: 42000, arr: 504000 },
   { month: "Feb", revenue: 47500, mrr: 47500, arr: 570000 },
   { month: "Mar", revenue: 51200, mrr: 51200, arr: 614400 },
@@ -23,7 +23,7 @@ export const revenueData: RevenueDataPoint[] = [
   { month: "Dec", revenue: 98400, mrr: 98400, arr: 1180800 },
 ];
 
-export const userGrowthData: UserGrowthDataPoint[] = [
+export const userGrowthData: IUserGrowthDataPoint[] = [
   { month: "Jan", total: 1240, new: 180, churned: 32 },
   { month: "Feb", total: 1388, new: 210, churned: 42 },
   { month: "Mar", total: 1551, new: 230, churned: 47 },
@@ -38,14 +38,14 @@ export const userGrowthData: UserGrowthDataPoint[] = [
   { month: "Dec", total: 3280, new: 340, churned: 120 },
 ];
 
-export const planDistribution: PlanDistribution[] = [
+export const planDistribution: IPlanDistribution[] = [
   { name: "Starter", value: 38, color: "hsl(215, 70%, 60%)" },
   { name: "Pro", value: 31, color: "hsl(262, 70%, 60%)" },
   { name: "Business", value: 21, color: "hsl(142, 70%, 45%)" },
   { name: "Enterprise", value: 10, color: "hsl(38, 90%, 55%)" },
 ];
 
-export const trafficSources: TrafficSource[] = [
+export const trafficSources: ITrafficSource[] = [
   { source: "Organic Search", visitors: 12840, conversion: 3.2 },
   { source: "Direct", visitors: 8920, conversion: 5.1 },
   { source: "Referral", visitors: 6340, conversion: 4.7 },
@@ -54,7 +54,7 @@ export const trafficSources: TrafficSource[] = [
   { source: "Paid Ads", visitors: 2940, conversion: 4.1 },
 ];
 
-export const featureUsage: FeatureUsage[] = [
+export const featureUsage: IFeatureUsage[] = [
   { feature: "analytics", usage: 89, trend: 12 },
   { feature: "reports", usage: 76, trend: 8 },
   { feature: "apiAccess", usage: 64, trend: -3 },
@@ -63,7 +63,7 @@ export const featureUsage: FeatureUsage[] = [
   { feature: "aiAssistant", usage: 43, trend: 34 },
 ];
 
-export const customers: Customer[] = [
+export const customers: ICustomer[] = [
   {
     id: "c1",
     name: "Sarah Rezaei",
@@ -176,7 +176,7 @@ export const customers: Customer[] = [
   },
 ];
 
-export const reports: Report[] = [
+export const reports: IReport[] = [
   {
     id: "r1",
     title: "Q1 2026 Revenue Analysis",

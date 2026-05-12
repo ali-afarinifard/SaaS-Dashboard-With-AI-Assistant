@@ -13,9 +13,9 @@ import {
 import { cn } from "@/lib/utils";
 import { useChatStore, useSettingsStore } from "@/store";
 import { CommandGroup } from "./command-group";
-import type { Command, CommandPaletteProps } from "./types";
+import type { ICommand, ICommandPaletteProps } from "./types";
 
-export function CommandPalette({ open, onClose }: CommandPaletteProps) {
+export function CommandPalette({ open, onClose }: ICommandPaletteProps) {
   const [query, setQuery] = useState("");
   const router = useRouter();
 
@@ -49,7 +49,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     onClose();
   }, [setChatOpen, onClose]);
 
-  const commands: Command[] = useMemo(
+  const commands: ICommand[] = useMemo(
     () => [
       {
         id: "dashboard",

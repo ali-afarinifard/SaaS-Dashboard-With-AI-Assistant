@@ -1,6 +1,6 @@
 // types
 // Metric types
-export interface MetricCard {
+export interface IMetricCard {
   id: string;
   label: string;
   value: string | number;
@@ -12,27 +12,27 @@ export interface MetricCard {
 }
 
 // Chart data types
-export interface RevenueDataPoint {
+export interface IRevenueDataPoint {
   month: string;
   revenue: number;
   mrr: number;
   arr: number;
 }
 
-export interface UserGrowthDataPoint {
+export interface IUserGrowthDataPoint {
   month: string;
   total: number;
   new: number;
   churned: number;
 }
 
-export interface PlanDistribution {
+export interface IPlanDistribution {
   name: string;
   value: number;
   color: string;
 }
 
-export interface TrafficSource {
+export interface ITrafficSource {
   source: string;
   visitors: number;
   conversion: number;
@@ -46,7 +46,7 @@ export type FeatureKey =
   | "integrations"
   | "aiAssistant";
 
-export interface FeatureUsage {
+export interface IFeatureUsage {
   feature: FeatureKey;
   usage: number;
   trend: number;
@@ -56,7 +56,7 @@ export interface FeatureUsage {
 export type CustomerStatus = "active" | "inactive" | "churned" | "trial";
 export type PlanType = "starter" | "pro" | "business" | "enterprise";
 
-export interface Customer {
+export interface ICustomer {
   id: string;
   name: string;
   email: string;
@@ -72,7 +72,7 @@ export interface Customer {
 // AI Chat types
 export type MessageRole = "user" | "assistant";
 
-export interface ChatMessage {
+export interface IChatMessage {
   id: string;
   role: MessageRole;
   content: string;
@@ -83,7 +83,7 @@ export interface ChatMessage {
 // Report types
 export type DateRange = "7d" | "30d" | "90d" | "custom";
 
-export interface Report {
+export interface IReport {
   id: string;
   title: string;
   description: string;
@@ -96,14 +96,14 @@ export interface Report {
 export type Theme = "light" | "dark" | "system";
 export type Locale = "en" | "fa";
 
-export interface ApiKey {
+export interface IApiKey {
   id: string;
   name: string;
   key: string;
   created: string;
 }
 
-export interface UserSettings {
+export interface IUserSettings {
   theme: Theme;
   locale: Locale;
   notifications: {
@@ -115,13 +115,13 @@ export interface UserSettings {
 }
 
 // API response types
-export interface ApiResponse<T> {
+export interface IApiResponse<T> {
   data: T;
   success: boolean;
   message?: string;
 }
 
-export interface PaginatedResponse<T> {
+export interface IPaginatedResponse<T> {
   data: T[];
   total: number;
   page: number;

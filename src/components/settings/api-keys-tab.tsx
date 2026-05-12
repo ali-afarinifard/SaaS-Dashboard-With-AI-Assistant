@@ -4,12 +4,12 @@ import { useTranslations } from "next-intl";
 import { Key, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 import { mockApi } from "@/lib/mock-api";
-import { ApiKey } from "@/types";
+import { IApiKey } from "@/types";
 
 export function ApiKeysTab() {
   const t = useTranslations("settings");
 
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([
+  const [apiKeys, setApiKeys] = useState<IApiKey[]>([
     {
       id: "k1",
       name: "Production Key",

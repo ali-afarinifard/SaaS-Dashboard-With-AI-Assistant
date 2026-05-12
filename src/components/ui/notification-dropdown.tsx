@@ -1,4 +1,3 @@
-// src/components/ui/notification-dropdown.tsx
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
@@ -14,7 +13,7 @@ import { useSettingsStore } from "@/store";
 import { useTranslations } from "next-intl";
 import { Portal } from "./portal";
 
-interface Notification {
+interface INotification {
   id: string;
   type: "revenue" | "user" | "alert" | "feature";
   title: string;
@@ -23,7 +22,7 @@ interface Notification {
   read: boolean;
 }
 
-const INITIAL_NOTIFICATIONS: Notification[] = [
+const INITIAL_NOTIFICATIONS: INotification[] = [
   {
     id: "n1",
     type: "revenue",

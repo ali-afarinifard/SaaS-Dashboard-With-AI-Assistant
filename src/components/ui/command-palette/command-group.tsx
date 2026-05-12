@@ -1,8 +1,7 @@
-// src/components/ui/command-palette/command-group.tsx
 "use client";
 import { memo } from "react";
 import { CommandItem } from "./command-item";
-import type { CommandGroupProps } from "./types";
+import type { ICommandGroupProps } from "./types";
 
 export const CommandGroup = memo(({
   group,
@@ -12,7 +11,7 @@ export const CommandGroup = memo(({
   isRTL,
   itemsRef,
   onSelect,
-}: CommandGroupProps) => (
+}: ICommandGroupProps) => (
   <div className="mb-2">
     <div className="px-4 py-2">
       <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
