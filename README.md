@@ -42,7 +42,7 @@ A production-grade SaaS analytics dashboard built with Next.js 14, TypeScript, T
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/saas-analytics-dashboard.git
+git clone [https://github.com/yourusername/saas-analytics-dashboard.git
 cd saas-analytics-dashboard
 ```
 
