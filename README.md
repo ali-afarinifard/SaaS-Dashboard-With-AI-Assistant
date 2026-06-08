@@ -58,13 +58,13 @@ npm install
 cp .env.local.example .env.local
 ```
 
-Open `.env.local` and add your GapGPT API key:
+Open `.env.local` and add your GROQ API key:
 
 ```env
-GAPGPT_API_KEY=gapgpt_api_key_here
+GROQ_API_KEY=gapgpt_api_key_here
 ```
 
-> Get your API key from [gapgpt.app](https://gapgpt.app)
+> Get your API key from [console.groq.com](https://console.groq.com/keys)
 
 ### 4. Run the development server
 
@@ -78,7 +78,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🤖 AI Assistant
 
-The AI assistant is powered by GapGPT and has full context of your dashboard metrics. It can:
+The AI assistant is powered by GROQ and has full context of your dashboard metrics. It can:
 
 - Analyze revenue trends and growth drivers
 - Explain churn patterns and risk factors
