@@ -122,7 +122,7 @@ Deploy instantly on [Vercel](https://vercel.com):
 
 [![Deploy with Vercel](https://vercel.com/button)](https://saas-dashboard-with-ai-assistant.vercel.app)
 
-Remember to add `GAPGPT_API_KEY` to your Vercel environment variables.
+Remember to add `GROQ_API_KEY` to your Vercel environment variables.
 
 ---
 
