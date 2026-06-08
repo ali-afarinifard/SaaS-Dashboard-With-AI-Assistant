@@ -1,6 +1,6 @@
 # Nexus Analytics — SaaS Dashboard
 
-A production-grade SaaS analytics dashboard built with Next.js 14, TypeScript, TailwindCSS, React Query, Zustand, Recharts, and AI-powered insights via GapGPT API.
+A production-grade SaaS analytics dashboard built with Next.js 14, TypeScript, TailwindCSS, React Query, Zustand, Recharts, and AI-powered insights via GROQ API.
 
 ---
 
@@ -29,7 +29,7 @@ A production-grade SaaS analytics dashboard built with Next.js 14, TypeScript, T
 | State Management | Zustand |
 | Server State / Cache | TanStack React Query v5 |
 | Charts | Recharts |
-| AI Integration | GapGPT API (OpenAI-compatible) |
+| AI Integration | GROQ API (OpenAI-compatible) |
 | Internationalization | next-intl |
 | Theme | next-themes |
 | Animations | Framer Motion |
@@ -61,7 +61,7 @@ cp .env.local.example .env.local
 Open `.env.local` and add your GROQ API key:
 
 ```env
-GROQ_API_KEY=gapgpt_api_key_here
+GROQ_API_KEY=groq_api_key_here
 ```
 
 > Get your API key from [console.groq.com](https://console.groq.com/keys)
