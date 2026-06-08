@@ -8,7 +8,7 @@ A production-grade SaaS analytics dashboard built with Next.js 14, TypeScript, T
 
 - **Real-time Metrics** — MRR, ARR, Active Users, Churn Rate, Conversion Rate and more
 - **Interactive Charts** — Revenue trends, User growth, Plan distribution, Feature usage (Recharts)
-- **AI Assistant** — Contextual SaaS insights powered by GapGPT (OpenAI-compatible API)
+- **AI Assistant** — Contextual SaaS insights powered by GROQ AI (OpenAI-compatible API)
 - **Customer Management** — Searchable, filterable customer table with status badges
 - **Reports** — Generated reports with download support
 - **Settings** — Profile, notifications, billing, team, API keys management
