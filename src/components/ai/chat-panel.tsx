@@ -7,7 +7,6 @@ import { useChatStore, useSettingsStore } from "@/store";
 import { cn, getTextDirection } from "@/lib/utils";
 import { MessageBubble } from "./message-bubble";
 
-// Constants
 const panelVariants = {
   initial: { x: "100%", opacity: 0 },
   animate: { x: 0, opacity: 1 },
@@ -19,6 +18,9 @@ const panelTransition = {
   damping: 30,
   stiffness: 300,
 } as const;
+
+const MIN_HEIGHT = 36;
+const MAX_HEIGHT = 112;
 
 export function AIChatPanel() {
   const t = useTranslations("ai");
@@ -39,6 +41,16 @@ export function AIChatPanel() {
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = `${MIN_HEIGHT}px`;
+    const newHeight = Math.min(el.scrollHeight, MAX_HEIGHT);
+    el.style.height = `${newHeight}px`;
+    el.style.overflowY = el.scrollHeight > MAX_HEIGHT ? "auto" : "hidden";
+  }, [input]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -48,41 +60,63 @@ export function AIChatPanel() {
     if (isOpen) inputRef.current?.focus();
   }, [isOpen]);
 
+  useEffect(
+    () => () => {
+      abortRef.current?.abort();
+    },
+    [],
+  );
+
   const sendMessage = useCallback(
     async (text: string) => {
       if (!text.trim() || isLoading) return;
       setInput("");
-
       addMessage("user", text);
       setIsLoading(true);
 
-      const store = useChatStore.getState();
-      store.addMessage("assistant", "");
-      const allMsgs = useChatStore.getState().messages;
-      const lastMsg = allMsgs[allMsgs.length - 1];
-      updateMessage(lastMsg.id, "", true);
+      const assistantId = useChatStore.getState().addMessage("assistant", "");
+      updateMessage(assistantId, "", true);
+
+      const history = useChatStore
+        .getState()
+        .messages.filter((m) => !m.isLoading && m.content.trim().length > 0)
+        .slice(-10)
+        .map((m) => ({ role: m.role, content: m.content }));
+
+      abortRef.current = new AbortController();
 
       try {
-        const history = useChatStore
-          .getState()
-          .messages.filter((m) => !m.isLoading)
-          .slice(-10)
-          .map((m) => ({ role: m.role, content: m.content }));
-
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: history }),
+          signal: abortRef.current.signal,
         });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed");
+        if (!res.ok || !res.body) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Failed");
+        }
 
-        updateMessage(lastMsg.id, data.content, false);
-      } catch {
-        updateMessage(lastMsg.id, t("errorMessage"), false);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulated = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          accumulated += decoder.decode(value, { stream: true });
+          updateMessage(assistantId, accumulated, false);
+        }
+
+        const tail = decoder.decode();
+        if (tail) updateMessage(assistantId, accumulated + tail, false);
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "AbortError") return;
+        updateMessage(assistantId, t("errorMessage"), false);
       } finally {
         setIsLoading(false);
+        abortRef.current = null;
       }
     },
     [isLoading, addMessage, updateMessage, setIsLoading, t],
@@ -98,11 +132,16 @@ export function AIChatPanel() {
     [sendMessage, input],
   );
 
-  const handleClose = useCallback(() => setIsOpen(false), [setIsOpen]);
+  const handleClose = useCallback(() => {
+    abortRef.current?.abort();
+    setIsOpen(false);
+  }, [setIsOpen]);
+
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value),
     [],
   );
+
   const handleSend = useCallback(
     () => sendMessage(input),
     [sendMessage, input],
@@ -144,7 +183,9 @@ export function AIChatPanel() {
               </div>
               <div>
                 <h2 className="text-sm font-semibold">{t("title")}</h2>
-                <p className="text-xs text-muted-foreground">{t("poweredBy")}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("poweredBy")}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -175,7 +216,9 @@ export function AIChatPanel() {
                     <Sparkles className="w-6 h-6 text-primary" />
                   </div>
                   <p className="text-sm font-medium mb-1">{t("title")}</p>
-                  <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("subtitle")}
+                  </p>
                 </div>
                 <div className="space-y-2">
                   {suggestions.map((s) => (
@@ -196,7 +239,7 @@ export function AIChatPanel() {
                 key={msg.id}
                 role={msg.role}
                 content={msg.content}
-                isLoading={msg.isLoading}
+                isLoading={msg.isLoading && msg.content.length === 0}
               />
             ))}
             <div ref={bottomRef} />
@@ -214,10 +257,10 @@ export function AIChatPanel() {
                 placeholder={t("placeholder")}
                 rows={1}
                 className={cn(
-                  "flex-1 bg-transparent text-xs resize-none outline-none text-foreground placeholder:text-muted-foreground max-h-28",
+                  "flex-1 bg-transparent text-xs resize-none outline-none text-foreground placeholder:text-muted-foreground overflow-hidden transition-[height] duration-100",
                   isRTL && "font-[Vazirmatn,sans-serif]",
                 )}
-                style={{ lineHeight: "1.5" }}
+                style={{ lineHeight: "1.5", minHeight: `${MIN_HEIGHT}px` }}
               />
               <button
                 onClick={handleSend}

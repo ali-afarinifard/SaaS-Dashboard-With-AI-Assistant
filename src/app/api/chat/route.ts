@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-const GAPGPT_API_URL = "https://api.gapgpt.app/v1/chat/completions";
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_LENGTH = 2000;
@@ -38,50 +38,6 @@ interface ChatMessage {
   content: string;
 }
 
-function validateMessages(messages: unknown): ChatMessage[] {
-  if (!Array.isArray(messages)) {
-    throw new ValidationError("messages must be an array");
-  }
-
-  if (messages.length === 0) {
-    throw new ValidationError("messages array cannot be empty");
-  }
-
-  if (messages.length > MAX_MESSAGES) {
-    throw new ValidationError(
-      `messages array cannot exceed ${MAX_MESSAGES} items`
-    );
-  }
-
-  return messages.map((m, i) => {
-    if (typeof m !== "object" || m === null) {
-      throw new ValidationError(`message at index ${i} must be an object`);
-    }
-
-    const { role, content } = m as Record<string, unknown>;
-
-    if (role !== "user" && role !== "assistant") {
-      throw new ValidationError(
-        `message at index ${i} has invalid role: must be 'user' or 'assistant'`
-      );
-    }
-
-    if (typeof content !== "string" || content.trim().length === 0) {
-      throw new ValidationError(
-        `message at index ${i} has invalid or empty content`
-      );
-    }
-
-    if (content.length > MAX_MESSAGE_LENGTH) {
-      throw new ValidationError(
-        `message at index ${i} exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters`
-      );
-    }
-
-    return { role, content: content.trim() };
-  });
-}
-
 class ValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -89,15 +45,42 @@ class ValidationError extends Error {
   }
 }
 
+function validateMessages(messages: unknown): ChatMessage[] {
+  if (!Array.isArray(messages)) throw new ValidationError("messages must be an array");
+  if (messages.length === 0) throw new ValidationError("messages array cannot be empty");
+  if (messages.length > MAX_MESSAGES)
+    throw new ValidationError(`messages array cannot exceed ${MAX_MESSAGES} items`);
+
+  return messages.map((m, i) => {
+    if (typeof m !== "object" || m === null)
+      throw new ValidationError(`message at index ${i} must be an object`);
+
+    const { role, content } = m as Record<string, unknown>;
+
+    if (role !== "user" && role !== "assistant")
+      throw new ValidationError(`message at index ${i} has invalid role`);
+
+    if (typeof content !== "string" || content.trim().length === 0)
+      throw new ValidationError(`message at index ${i} has invalid or empty content`);
+
+    if (content.length > MAX_MESSAGE_LENGTH)
+      throw new ValidationError(
+        `message at index ${i} exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters`
+      );
+
+    return { role, content: content.trim() };
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => null);
 
     if (!body || typeof body !== "object") {
-      return NextResponse.json(
-        { error: "Invalid JSON body" },
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     let messages: ChatMessage[];
@@ -105,63 +88,104 @@ export async function POST(req: NextRequest) {
       messages = validateMessages(body.messages);
     } catch (err) {
       if (err instanceof ValidationError) {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
       }
       throw err;
     }
 
-    const apiKey = process.env.GAPGPT_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      console.error("[chat/route] GAPGPT_API_KEY is not configured");
-      return NextResponse.json(
-        { error: "API key not configured" },
-        { status: 500 }
-      );
+      console.error("[chat/route] GROQ_API_KEY is not configured");
+      return new Response(JSON.stringify({ error: "API key not configured" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    const response = await fetch(GAPGPT_API_URL, {
+    const groqResponse = await fetch(GROQ_API_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "llama-3.3-70b-versatile",
         messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
         max_tokens: 500,
         temperature: 0.7,
+        stream: true,
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("[chat/route] GapGPT API error:", {
-        status: response.status,
+    if (!groqResponse.ok || !groqResponse.body) {
+      const errorData = await groqResponse.json().catch(() => ({}));
+      console.error("[chat/route] Groq API error:", {
+        status: groqResponse.status,
         error: errorData,
       });
-      return NextResponse.json(
-        { error: "AI service temporarily unavailable" },
-        { status: 502 }
+      return new Response(
+        JSON.stringify({ error: "AI service temporarily unavailable" }),
+        { status: 502, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    // Pipe Groq SSE → plain text stream to client
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = groqResponse.body!.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
 
-    if (typeof content !== "string" || content.trim().length === 0) {
-      console.error("[chat/route] Empty or invalid response from AI service");
-      return NextResponse.json(
-        { error: "Empty response from AI service" },
-        { status: 502 }
-      );
-    }
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-    return NextResponse.json({ content });
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
+
+            for (const line of lines) {
+              if (!line.startsWith("data: ")) continue;
+              const jsonStr = line.slice(6).trim();
+              if (!jsonStr || jsonStr === "[DONE]") continue;
+
+              try {
+                const parsed = JSON.parse(jsonStr);
+                const delta = parsed?.choices?.[0]?.delta?.content;
+                if (delta) {
+                  controller.enqueue(new TextEncoder().encode(delta));
+                }
+              } catch {
+                // skip malformed chunks
+              }
+            }
+          }
+        } catch (err) {
+          console.error("[chat/route] Stream read error:", err);
+          controller.error(err);
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
   } catch (error) {
     console.error("[chat/route] Unhandled error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

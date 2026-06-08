@@ -3,7 +3,6 @@ import { memo } from "react";
 import { Bot, User } from "lucide-react";
 import { cn, getTextDirection } from "@/lib/utils";
 
-// TypingIndicator
 export const TypingIndicator = memo(function TypingIndicator() {
   return (
     <div className="flex items-center gap-1 px-1">
@@ -20,8 +19,17 @@ export const TypingIndicator = memo(function TypingIndicator() {
 
 TypingIndicator.displayName = "TypingIndicator";
 
+const StreamingCursor = memo(function StreamingCursor() {
+  return (
+    <span
+      className="inline-block w-0.5 h-3.5 bg-current ml-0.5 align-middle animate-[blink_0.9s_step-start_infinite]"
+      aria-hidden
+    />
+  );
+});
 
-// MessageBubble
+StreamingCursor.displayName = "StreamingCursor";
+
 export interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
@@ -35,6 +43,8 @@ export const MessageBubble = memo(function MessageBubble({
 }: MessageBubbleProps) {
   const dir = getTextDirection(content);
   const isUser = role === "user";
+
+  const showDots = isLoading && content.length === 0;
 
   return (
     <div className={cn("flex gap-2.5", isUser ? "flex-row-reverse" : "flex-row")}>
@@ -62,7 +72,14 @@ export const MessageBubble = memo(function MessageBubble({
           dir === "rtl" && "text-right font-[Vazirmatn,sans-serif]",
         )}
       >
-        {isLoading ? <TypingIndicator /> : content}
+        {showDots ? (
+          <TypingIndicator />
+        ) : (
+          <>
+            {content}
+            {isLoading && content.length > 0 && <StreamingCursor />}
+          </>
+        )}
       </div>
     </div>
   );
