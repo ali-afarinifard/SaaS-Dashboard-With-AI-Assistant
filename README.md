@@ -1,6 +1,6 @@
 # Nexus Analytics — SaaS Dashboard
 
-A production-grade SaaS analytics dashboard built with Next.js 14, TypeScript, TailwindCSS, React Query, Zustand, Recharts, and AI-powered insights via GapGPT API.
+A production-grade SaaS analytics dashboard built with Next.js 14, TypeScript, TailwindCSS, React Query, Zustand, Recharts, and AI-powered insights via GROQ API.
 
 ---
 
@@ -8,7 +8,7 @@ A production-grade SaaS analytics dashboard built with Next.js 14, TypeScript, T
 
 - **Real-time Metrics** — MRR, ARR, Active Users, Churn Rate, Conversion Rate and more
 - **Interactive Charts** — Revenue trends, User growth, Plan distribution, Feature usage (Recharts)
-- **AI Assistant** — Contextual SaaS insights powered by GapGPT (OpenAI-compatible API)
+- **AI Assistant** — Contextual SaaS insights powered by GROQ AI (OpenAI-compatible API)
 - **Customer Management** — Searchable, filterable customer table with status badges
 - **Reports** — Generated reports with download support
 - **Settings** — Profile, notifications, billing, team, API keys management
@@ -29,7 +29,7 @@ A production-grade SaaS analytics dashboard built with Next.js 14, TypeScript, T
 | State Management | Zustand |
 | Server State / Cache | TanStack React Query v5 |
 | Charts | Recharts |
-| AI Integration | GapGPT API (OpenAI-compatible) |
+| AI Integration | GROQ API (OpenAI-compatible) |
 | Internationalization | next-intl |
 | Theme | next-themes |
 | Animations | Framer Motion |
@@ -58,13 +58,13 @@ npm install
 cp .env.local.example .env.local
 ```
 
-Open `.env.local` and add your GapGPT API key:
+Open `.env.local` and add your GROQ API key:
 
 ```env
-GAPGPT_API_KEY=gapgpt_api_key_here
+GROQ_API_KEY=groq_api_key_here
 ```
 
-> Get your API key from [gapgpt.app](https://gapgpt.app)
+> Get your API key from [console.groq.com](https://console.groq.com/keys)
 
 ### 4. Run the development server
 
@@ -78,7 +78,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🤖 AI Assistant
 
-The AI assistant is powered by GapGPT and has full context of your dashboard metrics. It can:
+The AI assistant is powered by GROQ and has full context of your dashboard metrics. It can:
 
 - Analyze revenue trends and growth drivers
 - Explain churn patterns and risk factors
@@ -122,7 +122,7 @@ Deploy instantly on [Vercel](https://vercel.com):
 
 [![Deploy with Vercel](https://vercel.com/button)](https://saas-dashboard-with-ai-assistant.vercel.app)
 
-Remember to add `GAPGPT_API_KEY` to your Vercel environment variables.
+Remember to add `GROQ_API_KEY` to your Vercel environment variables.
 
 ---
 
