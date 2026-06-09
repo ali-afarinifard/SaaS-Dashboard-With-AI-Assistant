@@ -5,22 +5,7 @@ import { Providers } from "@/components/layout/providers";
 import NextTopLoader from "nextjs-toploader";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { DM_Sans, Vazirmatn } from "next/font/google";
 import "./globals.css";
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-dm-sans",
-  display: "swap",
-});
-
-const vazirmatn = Vazirmatn({
-  subsets: ["arabic"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-vazirmatn",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Analytics — SaaS Dashboard",
@@ -41,7 +26,6 @@ export default async function RootLayout({
       lang={locale}
       dir={locale === "fa" ? "rtl" : "ltr"}
       suppressHydrationWarning
-      className={`${dmSans.variable} ${vazirmatn.variable}`}
     >
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages} locale={locale}>

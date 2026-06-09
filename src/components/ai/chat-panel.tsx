@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
 import { useTranslations } from "next-intl";
 import { X, Send, Bot, Sparkles, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,9 +22,35 @@ const panelTransition = {
 const MIN_HEIGHT = 36;
 const MAX_HEIGHT = 112;
 
+const SUGGESTION_KEYS = [
+  "suggestions.revenue",
+  "suggestions.churn",
+  "suggestions.users",
+  "suggestions.forecast",
+] as const;
+
+const SuggestionButton = memo(function SuggestionButton({
+  text,
+  onSend,
+}: {
+  text: string;
+  onSend: (text: string) => void;
+}) {
+  const handleClick = useCallback(() => onSend(text), [onSend, text]);
+  return (
+    <button
+      onClick={handleClick}
+      className="w-full text-start px-3 py-2.5 rounded-lg text-xs bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-colors border border-border/50"
+    >
+      {text}
+    </button>
+  );
+});
+
 export function AIChatPanel() {
   const t = useTranslations("ai");
-  const { locale } = useSettingsStore();
+
+  const locale = useSettingsStore((s) => s.locale);
   const isRTL = locale === "fa";
 
   const {
@@ -57,7 +83,8 @@ export function AIChatPanel() {
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen) inputRef.current?.focus();
+    if (!isOpen) return;
+    inputRef.current?.focus();
   }, [isOpen]);
 
   useEffect(
@@ -137,31 +164,20 @@ export function AIChatPanel() {
     setIsOpen(false);
   }, [setIsOpen]);
 
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value),
-    [],
-  );
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+    setInput(e.target.value);
 
   const handleSend = useCallback(
     () => sendMessage(input),
     [sendMessage, input],
   );
 
-  const suggestions = useMemo(
-    () => [
-      t("suggestions.revenue"),
-      t("suggestions.churn"),
-      t("suggestions.users"),
-      t("suggestions.forecast"),
-    ],
-    [t],
-  );
+  const suggestions = SUGGESTION_KEYS.map((key) => t(key));
 
-  const inputDir = input.trim()
-    ? getTextDirection(input)
-    : isRTL
-      ? "rtl"
-      : "ltr";
+  const inputDir = useMemo(
+    () => (input.trim() ? getTextDirection(input) : isRTL ? "rtl" : "ltr"),
+    [input, isRTL],
+  );
 
   return (
     <AnimatePresence>
@@ -222,13 +238,7 @@ export function AIChatPanel() {
                 </div>
                 <div className="space-y-2">
                   {suggestions.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => sendMessage(s)}
-                      className="w-full text-start px-3 py-2.5 rounded-lg text-xs bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-colors border border-border/50"
-                    >
-                      {s}
-                    </button>
+                    <SuggestionButton key={s} text={s} onSend={sendMessage} />
                   ))}
                 </div>
               </div>

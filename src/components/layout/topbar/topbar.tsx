@@ -17,7 +17,8 @@ export function Topbar({ title, subtitle }: ITopbarProps) {
   }, []);
 
   const openCmd = useCallback(() => setCmdOpen(true), []);
-  const closeCmd = useCallback(() => setCmdOpen(false), []);
+
+  const closeCmd = () => setCmdOpen(false);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -41,7 +42,6 @@ export function Topbar({ title, subtitle }: ITopbarProps) {
             </p>
           )}
         </div>
-
         <TopbarActions onSearchOpen={openCmd} mounted={mounted} />
       </header>
 

@@ -1,5 +1,4 @@
 "use client";
-
 import { memo, useMemo, useCallback } from "react";
 import {
   AreaChart,
@@ -12,19 +11,19 @@ import {
 } from "recharts";
 import { useTranslations } from "next-intl";
 import { useRevenueData, type DateRange } from "@/hooks/use-queries";
-import { useSettingsStore } from "@/store";
 import { cn } from "@/lib/utils";
 import { CustomTooltip } from "./custom-tooltip";
 
 export const RevenueChart = memo(function RevenueChart({
   range = "30d",
+  locale,
 }: {
   range?: DateRange;
+  locale: string;
 }) {
   const t = useTranslations("charts");
   const tMonths = useTranslations("months");
   const { data, isLoading } = useRevenueData(range);
-  const { locale } = useSettingsStore();
   const isRTL = locale === "fa";
 
   const chartData = useMemo(
@@ -37,11 +36,15 @@ export const RevenueChart = memo(function RevenueChart({
   );
 
   const formatValue = useCallback(
-    (value: number) => {
-      return isRTL
+    (value: number) =>
+      isRTL
         ? `${value.toLocaleString("fa-IR")} دلار`
-        : `$${value.toLocaleString()}`;
-    },
+        : `$${value.toLocaleString()}`,
+    [isRTL],
+  );
+
+  const yAxisFormatter = useCallback(
+    (v: number) => (isRTL ? v.toLocaleString("fa-IR") : `$${v / 1000}k`),
     [isRTL],
   );
 
@@ -63,7 +66,6 @@ export const RevenueChart = memo(function RevenueChart({
       dir={isRTL ? "rtl" : "ltr"}
     >
       <h3 className="text-sm font-semibold mb-5">{t("revenueOverTime")}</h3>
-
       <div className="h-[240px] w-full" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData}>
@@ -95,20 +97,16 @@ export const RevenueChart = memo(function RevenueChart({
             />
             <YAxis
               orientation={isRTL ? "right" : "left"}
-              tickFormatter={(v) =>
-                isRTL ? v.toLocaleString("fa-IR") : `$${v / 1000}k`
-              }
+              tickFormatter={yAxisFormatter}
               tick={{ fontSize: 11 }}
               axisLine={false}
               tickLine={false}
             />
-
             <Tooltip
               content={
                 <CustomTooltip isRTL={isRTL} valueFormatter={formatValue} />
               }
             />
-
             <Area
               type="monotone"
               dataKey="revenue"
@@ -116,6 +114,7 @@ export const RevenueChart = memo(function RevenueChart({
               stroke="hsl(var(--primary))"
               fill="url(#revenueGradient)"
               strokeWidth={2}
+              isAnimationActive={false}
             />
           </AreaChart>
         </ResponsiveContainer>

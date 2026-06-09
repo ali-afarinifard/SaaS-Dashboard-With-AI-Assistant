@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, memo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { User, Bell, CreditCard, Users, Key } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,16 +19,40 @@ const tabs: { key: Tab; icon: React.ElementType }[] = [
   { key: "api", icon: Key },
 ];
 
+const TabButton = memo(function TabButton({
+  tabKey,
+  icon: Icon,
+  label,
+  active,
+  onClick,
+}: {
+  tabKey: Tab;
+  icon: React.ElementType;
+  label: string;
+  active: boolean;
+  onClick: (key: Tab) => void;
+}) {
+  const handleClick = useCallback(() => onClick(tabKey), [onClick, tabKey]);
+
+  return (
+    <button
+      onClick={handleClick}
+      className={cn(
+        "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
+        active
+          ? "bg-primary text-primary-foreground"
+          : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+      )}
+    >
+      <Icon className="w-4 h-4 shrink-0" />
+      {label}
+    </button>
+  );
+});
+
 export function SettingsContent() {
   const t = useTranslations("settings");
   const [activeTab, setActiveTab] = useState<Tab>("profile");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const handleTabChange = useCallback((key: Tab) => setActiveTab(key), []);
 
   return (
     <div className="max-w-4xl animate-fade-in">
@@ -36,27 +60,22 @@ export function SettingsContent() {
         {/* Sidebar */}
         <aside className="w-48 shrink-0">
           <nav className="space-y-1">
-            {tabs.map(({ key, icon: Icon }) => (
-              <button
+            {tabs.map(({ key, icon }) => (
+              <TabButton
                 key={key}
-                onClick={() => handleTabChange(key)}
-                className={cn(
-                  "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
-                  activeTab === key
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground",
-                )}
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                {t(key)}
-              </button>
+                tabKey={key}
+                icon={icon}
+                label={t(key)}
+                active={activeTab === key}
+                onClick={setActiveTab} 
+              />
             ))}
           </nav>
         </aside>
 
         {/* Tab panels */}
         <div className="flex-1 space-y-5">
-          {activeTab === "profile" && <ProfileTab mounted={mounted} />}
+          {activeTab === "profile" && <ProfileTab />}
           {activeTab === "notifications" && <NotificationsTab />}
           {activeTab === "billing" && <BillingTab />}
           {activeTab === "team" && <TeamTab />}

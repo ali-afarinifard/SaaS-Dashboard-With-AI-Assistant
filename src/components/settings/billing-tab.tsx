@@ -1,4 +1,5 @@
 "use client";
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { CreditCard } from "lucide-react";
 import { useSettingsStore } from "@/store";
@@ -6,11 +7,19 @@ import { toast } from "@/components/ui/toast";
 
 export function BillingTab() {
   const t = useTranslations("settings");
-  const { locale } = useSettingsStore();
+
+  const locale = useSettingsStore((s) => s.locale);
+
+  const handleManagePlan = useCallback(() => {
+    toast.info("Plan management", "Contact sales to change your plan");
+  }, []);
+
+  const handleUpdateCard = useCallback(() => {
+    toast.info("Update card", "Card update redirects to billing portal");
+  }, []);
 
   return (
     <div className="space-y-4">
-      {/* Current Plan */}
       <div className="bg-card rounded-xl border border-border p-6">
         <h3 className="text-sm font-semibold mb-1">{t("currentPlan")}</h3>
         <p className="text-xs text-muted-foreground mb-4">
@@ -36,16 +45,13 @@ export function BillingTab() {
           </div>
         </div>
         <button
-          onClick={() =>
-            toast.info("Plan management", "Contact sales to change your plan")
-          }
+          onClick={handleManagePlan}
           className="mt-4 text-xs text-primary hover:underline"
         >
           {t("managePlan")} →
         </button>
       </div>
 
-      {/* Payment Method */}
       <div className="bg-card rounded-xl border border-border p-6">
         <h3 className="text-sm font-semibold mb-4">{t("paymentMethod")}</h3>
         <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
@@ -61,12 +67,7 @@ export function BillingTab() {
             </p>
           </div>
           <button
-            onClick={() =>
-              toast.info(
-                "Update card",
-                "Card update redirects to billing portal",
-              )
-            }
+            onClick={handleUpdateCard}
             className="ml-auto text-xs text-primary hover:underline"
           >
             {t("update")}

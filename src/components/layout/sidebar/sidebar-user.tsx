@@ -1,9 +1,10 @@
 "use client";
+import { memo } from "react";
 import { useUIStore } from "@/store";
 import { cn } from "@/lib/utils";
 
-export function SidebarUser() {
-  const { sidebarOpen } = useUIStore();
+export const SidebarUser = memo(function SidebarUser() {
+  const sidebarOpen = useUIStore((s) => s.sidebarOpen);
 
   return (
     <div className="p-3 border-t border-border">
@@ -27,4 +28,4 @@ export function SidebarUser() {
       </div>
     </div>
   );
-}
+});

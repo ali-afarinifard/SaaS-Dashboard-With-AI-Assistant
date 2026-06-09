@@ -1,5 +1,4 @@
 "use client";
-import { useCallback } from "react";
 import { Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore, useSettingsStore } from "@/store";
@@ -7,11 +6,9 @@ import { SidebarNav } from "./sidebar-nav";
 import { SidebarUser } from "./sidebar-user";
 
 export function Sidebar() {
-  const { sidebarOpen, toggleSidebar } = useUIStore();
-  const { locale } = useSettingsStore();
-  const isRTL = locale === "fa";
-
-  const handleToggle = useCallback(() => toggleSidebar(), [toggleSidebar]);
+  const sidebarOpen = useUIStore((s) => s.sidebarOpen);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const isRTL = useSettingsStore((s) => s.locale === "fa");
 
   return (
     <aside
@@ -36,9 +33,8 @@ export function Sidebar() {
 
       <SidebarNav />
 
-      {/* Collapse toggle */}
       <button
-        onClick={handleToggle}
+        onClick={toggleSidebar}
         className={cn(
           "absolute top-20 w-6 h-6 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors z-10",
           isRTL ? "-left-3" : "-right-3",

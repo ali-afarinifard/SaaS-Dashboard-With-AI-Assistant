@@ -1,27 +1,31 @@
 "use client";
-
-import { memo, useMemo, useCallback } from "react";
+import { memo, useCallback } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { useTranslations } from "next-intl";
 import { usePlanDistribution } from "@/hooks/use-queries";
-import { useSettingsStore } from "@/store";
 import { cn } from "@/lib/utils";
 import { CustomTooltip } from "./custom-tooltip";
 
-export const PlanDistributionChart = memo(function PlanDistributionChart() {
+export const PlanDistributionChart = memo(function PlanDistributionChart({
+  locale,
+}: {
+  locale: string;
+}) {
   const t = useTranslations("charts");
   const { data, isLoading } = usePlanDistribution();
-  const { locale } = useSettingsStore();
   const isRTL = locale === "fa";
 
-  const chartData = useMemo(() => data ?? [], [data]);
+  const chartData = data ?? [];
 
-  const formatPercentage = useCallback((value: number) => {
-    const formattedValue = isRTL
-      ? value.toLocaleString("fa-IR")
-      : value.toString();
-    return `${formattedValue}%`;
-  }, [isRTL]);
+  const formatPercentage = useCallback(
+    (value: number) => {
+      const formatted = isRTL
+        ? value.toLocaleString("fa-IR")
+        : value.toString();
+      return `${formatted}%`;
+    },
+    [isRTL],
+  );
 
   if (isLoading) {
     return (
@@ -56,7 +60,7 @@ export const PlanDistributionChart = memo(function PlanDistributionChart() {
               paddingAngle={3}
               dataKey="value"
               nameKey="name"
-              isAnimationActive
+              isAnimationActive={false}
             >
               {chartData.map((entry) => (
                 <Cell

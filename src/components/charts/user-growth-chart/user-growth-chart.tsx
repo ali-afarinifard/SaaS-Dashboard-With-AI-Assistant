@@ -1,6 +1,5 @@
 "use client";
-
-import { memo, useMemo } from "react";
+import { memo, useMemo, useCallback } from "react";
 import {
   BarChart,
   Bar,
@@ -12,28 +11,39 @@ import {
 } from "recharts";
 import { useTranslations } from "next-intl";
 import { useUserGrowthData, type DateRange } from "@/hooks/use-queries";
-import { useSettingsStore } from "@/store";
 import { cn } from "@/lib/utils";
 import { CustomTooltip } from "./custom-tooltip";
 
 export const UserGrowthChart = memo(function UserGrowthChart({
   range = "30d",
+  locale,
 }: {
   range?: DateRange;
+  locale: string;
 }) {
   const t = useTranslations("charts");
   const tMonths = useTranslations("months");
   const { data, isLoading } = useUserGrowthData(range);
-  
-  const { locale } = useSettingsStore();
   const isRTL = locale === "fa";
 
-  const chartData = useMemo(() => {
-    return (data ?? []).map((item) => ({
-      ...item,
-      displayMonth: tMonths(item.month),
-    }));
-  }, [data, tMonths]);
+  const chartData = useMemo(
+    () =>
+      (data ?? []).map((item) => ({
+        ...item,
+        displayMonth: tMonths(item.month),
+      })),
+    [data, tMonths],
+  );
+
+  const valueFormatter = useCallback(
+    (v: number) => (isRTL ? v.toLocaleString("fa-IR") : v.toLocaleString()),
+    [isRTL],
+  );
+
+  const yAxisFormatter = useCallback(
+    (v: number) => (isRTL ? v.toLocaleString("fa-IR") : v.toLocaleString()),
+    [isRTL],
+  );
 
   if (isLoading) {
     return (
@@ -45,10 +55,10 @@ export const UserGrowthChart = memo(function UserGrowthChart({
   }
 
   return (
-    <div 
+    <div
       className={cn(
         "bg-card rounded-xl p-5 border border-border card-hover transition-all",
-        isRTL && "font-vazir"
+        isRTL && "font-vazir",
       )}
       dir={isRTL ? "rtl" : "ltr"}
     >
@@ -58,17 +68,16 @@ export const UserGrowthChart = memo(function UserGrowthChart({
           {t("monthly")}
         </span>
       </div>
-
       <div className="h-[240px] w-full" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
             margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
           >
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              vertical={false} 
-              className="stroke-border/50" 
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              className="stroke-border/50"
             />
             <XAxis
               dataKey="displayMonth"
@@ -83,16 +92,11 @@ export const UserGrowthChart = memo(function UserGrowthChart({
               axisLine={false}
               tickLine={false}
               orientation={isRTL ? "right" : "left"}
-              tickFormatter={(v) => isRTL ? v.toLocaleString("fa-IR") : v.toLocaleString()}
+              tickFormatter={yAxisFormatter}
             />
             <Tooltip
               content={
-                <CustomTooltip
-                  isRTL={isRTL}
-                  valueFormatter={(v) => 
-                    isRTL ? v.toLocaleString("fa-IR") : v.toLocaleString()
-                  }
-                />
+                <CustomTooltip isRTL={isRTL} valueFormatter={valueFormatter} />
               }
               cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
             />
@@ -101,14 +105,14 @@ export const UserGrowthChart = memo(function UserGrowthChart({
               name={isRTL ? "کاربران جدید" : "New Users"}
               fill="hsl(var(--primary))"
               radius={[4, 4, 0, 0]}
-              isAnimationActive
+              isAnimationActive={false}
             />
             <Bar
               dataKey="churned"
               name={isRTL ? "ریزش" : "Churned"}
               fill="hsl(var(--destructive))"
               radius={[4, 4, 0, 0]}
-              isAnimationActive
+              isAnimationActive={false}
             />
           </BarChart>
         </ResponsiveContainer>

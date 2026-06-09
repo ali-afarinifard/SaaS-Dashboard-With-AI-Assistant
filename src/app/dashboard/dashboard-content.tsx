@@ -1,5 +1,35 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
+
+const FeatureUsageChart = dynamic<{ locale: string }>(
+  () =>
+    import("@/components/charts/feature-usage-chart").then(
+      (m) => m.FeatureUsageChart,
+    ),
+  { ssr: false },
+);
+const RevenueChart = dynamic<{ range: DateRange; locale: string }>(
+  () =>
+    import("@/components/charts/revenue-chart/revenue-chart").then(
+      (m) => m.RevenueChart,
+    ),
+  { ssr: false },
+);
+const UserGrowthChart = dynamic<{ range: DateRange; locale: string }>(
+  () =>
+    import("@/components/charts/user-growth-chart/user-growth-chart").then(
+      (m) => m.UserGrowthChart,
+    ),
+  { ssr: false },
+);
+const PlanDistributionChart = dynamic<{ locale: string }>(
+  () =>
+    import("@/components/charts/plan-distribution-chart/plan-distribution-chart").then(
+      (m) => m.PlanDistributionChart,
+    ),
+  { ssr: false },
+);
+
 import { useTranslations } from "next-intl";
 import {
   DollarSign,
@@ -15,30 +45,30 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { useDashboardMetrics } from "@/hooks/use-queries";
 import type { DateRange } from "@/hooks/use-queries";
 import { DateRangeSelector } from "@/components/ui/date-range-selector";
-import { FeatureUsageChart } from "@/components/charts/feature-usage-chart";
-import { RevenueChart } from "@/components/charts/revenue-chart/revenue-chart";
-import { UserGrowthChart } from "@/components/charts/user-growth-chart/user-growth-chart";
-import { PlanDistributionChart } from "@/components/charts/plan-distribution-chart/plan-distribution-chart";
+import { useSettingsStore } from "@/store";
+import dynamic from "next/dynamic";
+
+const DATE_RANGE_VALUES = ["7d", "30d", "90d"] as const;
 
 export function DashboardContent() {
   const t = useTranslations("metrics");
   const tDashboard = useTranslations("dashboard");
   const tReports = useTranslations("reports");
+
+  const locale = useSettingsStore((s) => s.locale);
+
   const [range, setRange] = useState<DateRange>("30d");
   const { data: metrics, isLoading } = useDashboardMetrics(range);
 
-   const DATE_RANGES = useMemo(
-    () => [
-      { value: "7d" as DateRange, label: tReports("last7days") },
-      { value: "30d" as DateRange, label: tReports("last30days") },
-      { value: "90d" as DateRange, label: tReports("last90days") },
-    ],
-    [tReports],
-  );
+  const DATE_RANGES = DATE_RANGE_VALUES.map((value) => ({
+    value,
+    label: tReports(
+      `last${value === "7d" ? "7" : value === "30d" ? "30" : "90"}days` as const,
+    ),
+  }));
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Date range selector */}
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-muted-foreground">
           {tDashboard("overview")}
@@ -60,6 +90,7 @@ export function DashboardContent() {
           description={t("vsLastMonth")}
           icon={<DollarSign className="w-3.5 h-3.5" />}
           loading={isLoading}
+          locale={locale}
         />
         <MetricCard
           label={t("activeUsers")}
@@ -68,6 +99,7 @@ export function DashboardContent() {
           description={t("vsLastMonth")}
           icon={<Users className="w-3.5 h-3.5" />}
           loading={isLoading}
+          locale={locale}
         />
         <MetricCard
           label={t("newSignups")}
@@ -76,6 +108,7 @@ export function DashboardContent() {
           description={t("vsLastMonth")}
           icon={<UserPlus className="w-3.5 h-3.5" />}
           loading={isLoading}
+          locale={locale}
         />
         <MetricCard
           label={t("churnRate")}
@@ -85,6 +118,7 @@ export function DashboardContent() {
           description={t("vsLastMonth")}
           icon={<TrendingDown className="w-3.5 h-3.5" />}
           loading={isLoading}
+          locale={locale}
         />
       </div>
 
@@ -98,6 +132,7 @@ export function DashboardContent() {
           description={t("vsLastMonth")}
           icon={<Activity className="w-3.5 h-3.5" />}
           loading={isLoading}
+          locale={locale}
         />
         <MetricCard
           label={t("arr")}
@@ -107,6 +142,7 @@ export function DashboardContent() {
           description={t("vsLastMonth")}
           icon={<BarChart2 className="w-3.5 h-3.5" />}
           loading={isLoading}
+          locale={locale}
         />
         <MetricCard
           label={t("conversionRate")}
@@ -116,6 +152,7 @@ export function DashboardContent() {
           description={t("vsLastMonth")}
           icon={<Percent className="w-3.5 h-3.5" />}
           loading={isLoading}
+          locale={locale}
         />
         <MetricCard
           label={t("avgSessionTime")}
@@ -124,19 +161,18 @@ export function DashboardContent() {
           description={t("vsLastMonth")}
           icon={<Clock className="w-3.5 h-3.5" />}
           loading={isLoading}
+          locale={locale}
         />
       </div>
 
-      {/* Charts row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <RevenueChart range={range} />
-        <UserGrowthChart range={range} />
+        <RevenueChart range={range} locale={locale} />
+        <UserGrowthChart range={range} locale={locale} />
       </div>
 
-      {/* Charts row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <PlanDistributionChart />
-        <FeatureUsageChart />
+        <PlanDistributionChart locale={locale} />
+        <FeatureUsageChart locale={locale} />
       </div>
     </div>
   );

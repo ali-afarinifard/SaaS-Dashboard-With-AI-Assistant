@@ -17,8 +17,6 @@ export const TypingIndicator = memo(function TypingIndicator() {
   );
 });
 
-TypingIndicator.displayName = "TypingIndicator";
-
 const StreamingCursor = memo(function StreamingCursor() {
   return (
     <span
@@ -27,8 +25,6 @@ const StreamingCursor = memo(function StreamingCursor() {
     />
   );
 });
-
-StreamingCursor.displayName = "StreamingCursor";
 
 export interface MessageBubbleProps {
   role: "user" | "assistant";
@@ -43,11 +39,12 @@ export const MessageBubble = memo(function MessageBubble({
 }: MessageBubbleProps) {
   const dir = getTextDirection(content);
   const isUser = role === "user";
-
   const showDots = isLoading && content.length === 0;
 
   return (
-    <div className={cn("flex gap-2.5", isUser ? "flex-row-reverse" : "flex-row")}>
+    <div
+      className={cn("flex gap-2.5", isUser ? "flex-row-reverse" : "flex-row")}
+    >
       <div
         className={cn(
           "w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5",
@@ -84,5 +81,3 @@ export const MessageBubble = memo(function MessageBubble({
     </div>
   );
 });
-
-MessageBubble.displayName = "MessageBubble";

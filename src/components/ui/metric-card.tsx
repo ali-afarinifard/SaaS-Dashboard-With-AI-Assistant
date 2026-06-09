@@ -1,7 +1,6 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn, formatPercent } from "@/lib/utils";
-import { useSettingsStore } from "@/store";
 
 interface IMetricCardProps {
   label: string;
@@ -12,6 +11,7 @@ interface IMetricCardProps {
   description?: string;
   icon?: React.ReactNode;
   loading?: boolean;
+  locale: string;
 }
 
 export const MetricCard = memo(function MetricCard({
@@ -23,32 +23,34 @@ export const MetricCard = memo(function MetricCard({
   description,
   icon,
   loading = false,
+  locale,
 }: IMetricCardProps) {
-  const locale = useSettingsStore((state) => state.locale);
   const isRTL = locale === "fa";
+
+  const formattedValue = useMemo(
+    () =>
+      typeof value === "number"
+        ? value.toLocaleString(isRTL ? "fa-IR" : "en-US")
+        : value,
+    [value, isRTL],
+  );
+
+  const trend = useMemo(() => {
+    if (change === undefined) return "neutral" as const;
+    if (change > 0) return "positive" as const;
+    if (change < 0) return "negative" as const;
+    return "neutral" as const;
+  }, [change]);
 
   if (loading) {
     return (
-      <div
-        className={cn(
-          "bg-card rounded-xl p-5 border border-border",
-          isRTL && "font-vazir",
-        )}
-      >
+      <div className={cn("bg-card rounded-xl p-5 border border-border", isRTL && "font-vazir")}>
         <div className="skeleton h-3 w-24 mb-4" />
         <div className="skeleton h-7 w-32 mb-2" />
         <div className="skeleton h-3 w-20" />
       </div>
     );
   }
-
-  const isPositive = change !== undefined && change > 0;
-  const isNegative = change !== undefined && change < 0;
-
-  const formattedValue =
-    typeof value === "number"
-      ? value.toLocaleString(isRTL ? "fa-IR" : "en-US")
-      : value;
 
   return (
     <div
@@ -86,15 +88,15 @@ export const MetricCard = memo(function MetricCard({
         <div
           className={cn(
             "flex items-center gap-1 text-xs font-semibold",
-            isPositive && "text-emerald-500",
-            isNegative && "text-rose-500",
-            !isPositive && !isNegative && "text-muted-foreground",
+            trend === "positive" && "text-emerald-500",
+            trend === "negative" && "text-rose-500",
+            trend === "neutral" && "text-muted-foreground",
           )}
         >
           <div className={cn("flex items-center", isRTL && "scale-x-[-1]")}>
-            {isPositive && <TrendingUp className="w-3.5 h-3.5" />}
-            {isNegative && <TrendingDown className="w-3.5 h-3.5" />}
-            {!isPositive && !isNegative && <Minus className="w-3.5 h-3.5" />}
+            {trend === "positive" && <TrendingUp className="w-3.5 h-3.5" />}
+            {trend === "negative" && <TrendingDown className="w-3.5 h-3.5" />}
+            {trend === "neutral" && <Minus className="w-3.5 h-3.5" />}
           </div>
 
           <span dir="ltr" className="inline-block">
@@ -102,12 +104,10 @@ export const MetricCard = memo(function MetricCard({
           </span>
 
           {description && (
-            <span
-              className={cn(
-                "text-muted-foreground font-normal text-[11px]",
-                isRTL ? "mr-1" : "ml-1",
-              )}
-            >
+            <span className={cn(
+              "text-muted-foreground font-normal text-[11px]",
+              isRTL ? "mr-1" : "ml-1",
+            )}>
               {description}
             </span>
           )}

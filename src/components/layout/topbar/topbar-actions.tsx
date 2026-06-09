@@ -1,5 +1,5 @@
 "use client";
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun, Globe, Search } from "lucide-react";
 import { useSettingsStore } from "@/store";
@@ -12,10 +12,14 @@ interface ITopbarActionsProps {
   mounted: boolean;
 }
 
-export function TopbarActions({ onSearchOpen, mounted }: ITopbarActionsProps) {
+export const TopbarActions = memo(function TopbarActions({
+  onSearchOpen,
+  mounted,
+}: ITopbarActionsProps) {
   const { theme, setTheme } = useTheme();
   const t = useTranslations("common");
-  const { locale } = useSettingsStore();
+
+  const locale = useSettingsStore((s) => s.locale);
 
   const toggleTheme = useCallback(() => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -26,6 +30,8 @@ export function TopbarActions({ onSearchOpen, mounted }: ITopbarActionsProps) {
     document.cookie = `locale=${newLocale};path=/;max-age=31536000`;
     window.location.reload();
   }, [locale]);
+
+  const isRTL = locale === "fa";
 
   return (
     <div className="flex items-center gap-2">
@@ -38,13 +44,11 @@ export function TopbarActions({ onSearchOpen, mounted }: ITopbarActionsProps) {
         <div
           className={cn(
             "text-[11px] px-1.5 py-0.5 bg-background rounded border border-border",
-            locale === "fa" ? "mr-2" : "ml-2",
+            isRTL ? "mr-2" : "ml-2",
           )}
         >
           <kbd
-            className={cn(
-              locale === "fa" ? "relative top-[2px]" : "relative top-[1px]",
-            )}
+            className={cn(isRTL ? "relative top-[2px]" : "relative top-[1px]")}
           >
             ⌘
           </kbd>
@@ -58,9 +62,7 @@ export function TopbarActions({ onSearchOpen, mounted }: ITopbarActionsProps) {
         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
       >
         <Globe className="w-3.5 h-3.5" />
-        <span className="relative top-[2px]">
-          {locale === "en" ? "FA" : "EN"}
-        </span>
+        <span className="relative top-[2px]">{isRTL ? "EN" : "FA"}</span>
       </button>
 
       <button
@@ -80,4 +82,4 @@ export function TopbarActions({ onSearchOpen, mounted }: ITopbarActionsProps) {
       </button>
     </div>
   );
-}
+});

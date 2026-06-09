@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import { useTranslations } from "next-intl";
 import { Search, Download } from "lucide-react";
 import { useCustomers } from "@/hooks/use-queries";
@@ -7,6 +7,7 @@ import { useSettingsStore } from "@/store";
 import { downloadCSV } from "@/lib/download";
 import { cn } from "@/lib/utils";
 import { CustomerTable } from "@/components/ui/customer-table";
+import { ICustomer } from "@/types";
 
 const STATUS_OPTIONS = [
   "all",
@@ -17,10 +18,48 @@ const STATUS_OPTIONS = [
 ] as const;
 type StatusOption = (typeof STATUS_OPTIONS)[number];
 
+function buildCSV(customers: ICustomer[], isRTL: boolean): string {
+  return [
+    "Name,Email,Plan,Status,Joined,Revenue",
+    ...customers.map(
+      (c) =>
+        `${c.name},${c.email},${c.plan},${c.status},${c.joinedAt},${
+          isRTL ? c.revenue.toLocaleString("fa-IR") : c.revenue
+        }`,
+    ),
+  ].join("\n");
+}
+
+const StatusButton = memo(function StatusButton({
+  status,
+  active,
+  label,
+  onClick,
+}: {
+  status: StatusOption;
+  active: boolean;
+  label: string;
+  onClick: (s: StatusOption) => void;
+}) {
+  return (
+    <button
+      onClick={() => onClick(status)}
+      className={cn(
+        "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+        active
+          ? "bg-card text-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {label}
+    </button>
+  );
+});
+
 export function CustomersContent() {
   const t = useTranslations("customers");
-  const { locale } = useSettingsStore();
-  const isRTL = locale === "fa";
+
+  const isRTL = useSettingsStore((s) => s.locale === "fa");
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusOption>("all");
@@ -28,28 +67,18 @@ export function CustomersContent() {
 
   const handleExport = useCallback(() => {
     if (!customers?.length) return;
-
-    const csv = [
-      "Name,Email,Plan,Status,Joined,Revenue",
-      ...customers.map(
-        (c) =>
-          `${c.name},${c.email},${c.plan},${c.status},${c.joinedAt},${
-            isRTL ? c.revenue.toLocaleString("fa-IR") : c.revenue
-          }`,
-      ),
-    ].join("\n");
-
-    downloadCSV("customers", csv);
+    downloadCSV("customers", buildCSV(customers, isRTL));
   }, [customers, isRTL]);
 
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value),
-    [],
-  );
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setSearch(e.target.value);
+
+  const handleStatusChange = useCallback((s: StatusOption) => {
+    setStatusFilter(s);
+  }, []);
 
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* Controls */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         {/* Search */}
         <div className="relative w-full md:max-w-sm">
@@ -75,18 +104,13 @@ export function CustomersContent() {
           {/* Status filter */}
           <div className="flex items-center gap-1 bg-secondary/50 border border-border rounded-lg p-1">
             {STATUS_OPTIONS.map((s) => (
-              <button
+              <StatusButton
                 key={s}
-                onClick={() => setStatusFilter(s)}
-                className={cn(
-                  "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
-                  statusFilter === s
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {t(s)}
-              </button>
+                status={s}
+                active={statusFilter === s}
+                label={t(s)}
+                onClick={handleStatusChange}
+              />
             ))}
           </div>
 

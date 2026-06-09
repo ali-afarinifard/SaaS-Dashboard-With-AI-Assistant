@@ -1,14 +1,56 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import { useTranslations } from "next-intl";
 import { Key, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 import { mockApi } from "@/lib/mock-api";
 import { IApiKey } from "@/types";
 
+// ApiKeyRow
+const ApiKeyRow = memo(function ApiKeyRow({
+  apiKey,
+  isRevoking,
+  revokeLabel,
+  createdLabel,
+  onRevoke,
+}: {
+  apiKey: IApiKey;
+  isRevoking: boolean;
+  revokeLabel: string;
+  createdLabel: string;
+  onRevoke: (id: string, name: string) => void;
+}) {
+  const handleRevoke = useCallback(
+    () => onRevoke(apiKey.id, apiKey.name),
+    [onRevoke, apiKey.id, apiKey.name],
+  );
+
+  return (
+    <div className="flex items-center gap-3 p-4 rounded-lg border border-border/50">
+      <Key className="w-4 h-4 text-muted-foreground shrink-0" />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium">{apiKey.name}</p>
+        <p className="text-xs font-mono text-muted-foreground mt-0.5">
+          {apiKey.key}
+        </p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {createdLabel} {apiKey.created}
+        </p>
+      </div>
+      <button
+        onClick={handleRevoke}
+        disabled={isRevoking}
+        className="flex items-center gap-1 text-xs text-destructive hover:underline disabled:opacity-50 shrink-0"
+      >
+        {isRevoking && <Loader2 className="w-3 h-3 animate-spin" />}
+        {revokeLabel}
+      </button>
+    </div>
+  );
+});
+
 export function ApiKeysTab() {
   const t = useTranslations("settings");
-
   const [apiKeys, setApiKeys] = useState<IApiKey[]>([
     {
       id: "k1",
@@ -64,36 +106,22 @@ export function ApiKeysTab() {
     }
   }, []);
 
+  const revokeLabel = t("revoke");
+  const createdLabel = t("created");
+
   return (
     <div className="bg-card rounded-xl border border-border p-6">
       <h3 className="text-sm font-semibold mb-5">API Keys</h3>
       <div className="space-y-3">
-        {apiKeys.map(({ id, name, key, created }) => (
-          <div
-            key={id}
-            className="flex items-center gap-3 p-4 rounded-lg border border-border/50"
-          >
-            <Key className="w-4 h-4 text-muted-foreground shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">{name}</p>
-              <p className="text-xs font-mono text-muted-foreground mt-0.5">
-                {key}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {t("created")} {created}
-              </p>
-            </div>
-            <button
-              onClick={() => handleRevokeKey(id, name)}
-              disabled={revokingKey === id}
-              className="flex items-center gap-1 text-xs text-destructive hover:underline disabled:opacity-50 shrink-0"
-            >
-              {revokingKey === id && (
-                <Loader2 className="w-3 h-3 animate-spin" />
-              )}
-              {t("revoke")}
-            </button>
-          </div>
+        {apiKeys.map((apiKey) => (
+          <ApiKeyRow
+            key={apiKey.id}
+            apiKey={apiKey}
+            isRevoking={revokingKey === apiKey.id}
+            revokeLabel={revokeLabel}
+            createdLabel={createdLabel}
+            onRevoke={handleRevokeKey}
+          />
         ))}
         <button
           onClick={handleGenerateKey}

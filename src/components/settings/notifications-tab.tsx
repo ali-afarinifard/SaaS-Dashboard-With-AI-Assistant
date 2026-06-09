@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import { useTranslations } from "next-intl";
 import { Save, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/toast";
@@ -9,9 +9,37 @@ import { ToggleSwitch } from "@/components/ui/toggle-switch";
 const NOTIFICATION_KEYS = ["email", "push", "weekly", "monthly"] as const;
 type NotificationKey = (typeof NOTIFICATION_KEYS)[number];
 
+const NotificationRow = memo(function NotificationRow({
+  notifKey,
+  checked,
+  label,
+  description,
+  onToggle,
+}: {
+  notifKey: NotificationKey;
+  checked: boolean;
+  label: string;
+  description: string;
+  onToggle: (key: NotificationKey, val: boolean) => void;
+}) {
+  const handleChange = useCallback(
+    (val: boolean) => onToggle(notifKey, val),
+    [onToggle, notifKey],
+  );
+  return (
+    <div className="border-b border-border/50 last:border-0 pb-5 last:pb-0">
+      <ToggleSwitch
+        checked={checked}
+        onChange={handleChange}
+        label={label}
+        description={description}
+      />
+    </div>
+  );
+});
+
 export function NotificationsTab() {
   const t = useTranslations("settings");
-
   const [notifications, setNotifications] = useState<
     Record<NotificationKey, boolean>
   >({
@@ -22,11 +50,9 @@ export function NotificationsTab() {
   });
   const [savingNotifs, setSavingNotifs] = useState(false);
 
-  const handleToggle = useCallback(
-    (key: NotificationKey) => (val: boolean) =>
-      setNotifications((prev) => ({ ...prev, [key]: val })),
-    [],
-  );
+  const handleToggle = useCallback((key: NotificationKey, val: boolean) => {
+    setNotifications((prev) => ({ ...prev, [key]: val }));
+  }, []);
 
   const handleSave = useCallback(async () => {
     setSavingNotifs(true);
@@ -48,17 +74,14 @@ export function NotificationsTab() {
         </h3>
         <div className="space-y-5">
           {NOTIFICATION_KEYS.map((key) => (
-            <div
+            <NotificationRow
               key={key}
-              className="border-b border-border/50 last:border-0 pb-5 last:pb-0"
-            >
-              <ToggleSwitch
-                checked={notifications[key]}
-                onChange={handleToggle(key)}
-                label={t(`${key}Notif`)}
-                description={t(`${key}NotifDesc`)}
-              />
-            </div>
+              notifKey={key}
+              checked={notifications[key]}
+              label={t(`${key}Notif`)}
+              description={t(`${key}NotifDesc`)}
+              onToggle={handleToggle}
+            />
           ))}
         </div>
       </div>

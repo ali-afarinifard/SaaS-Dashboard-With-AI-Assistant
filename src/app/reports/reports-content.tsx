@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import { useTranslations } from "next-intl";
 import {
   Download,
@@ -21,53 +21,116 @@ import { cn } from "@/lib/utils";
 import { downloadCSV } from "@/lib/download";
 import { RevenueChart } from "@/components/charts/revenue-chart/revenue-chart";
 import { UserGrowthChart } from "@/components/charts/user-growth-chart/user-growth-chart";
+import type { IReport } from "@/types";
 
 const DATE_RANGE_VALUES: DateRange[] = ["7d", "30d", "90d"];
 
-const typeIcon = {
+const TYPE_ICON = {
   revenue: TrendingUp,
   users: Users,
   churn: AlertTriangle,
   performance: Zap,
 } as const;
 
-const typeColor = {
+const TYPE_COLOR = {
   revenue: "text-success bg-success/10",
   users: "text-primary bg-primary/10",
   churn: "text-warning bg-warning/10",
   performance: "text-accent bg-accent/10",
 } as const;
 
-const statusKey = {
+const STATUS_KEY = {
   ready: "statusReady",
   generating: "statusGenerating",
   failed: "statusFailed",
 } as const;
 
-type ReportType = keyof typeof typeIcon;
-type ReportStatus = keyof typeof statusKey;
+const SKELETON_ROWS = Array.from({ length: 4 }, (_, i) => i);
 
+type ReportType = keyof typeof TYPE_ICON;
+type ReportStatus = keyof typeof STATUS_KEY;
+
+const ReportRow = memo(function ReportRow({
+  report,
+  locale,
+  onDownload,
+  t,
+}: {
+  report: IReport;
+  locale: string;
+  onDownload: (title: string) => void;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const Icon = TYPE_ICON[report.type as ReportType];
+
+  return (
+    <div className="px-5 py-4 flex items-center gap-4 hover:bg-secondary/30 transition-colors cursor-pointer">
+      <div
+        className={cn(
+          "p-2 rounded-lg shrink-0",
+          TYPE_COLOR[report.type as ReportType],
+        )}
+      >
+        <Icon className="w-4 h-4" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium truncate">{report.title}</p>
+        <p className="text-xs text-muted-foreground truncate">
+          {report.description}
+        </p>
+      </div>
+      <div className="flex items-center gap-3 shrink-0">
+        <span className="text-xs text-muted-foreground hidden sm:block">
+          {formatDateLocale(report.createdAt, locale)}
+        </span>
+        <Badge
+          variant={
+            report.status === "ready"
+              ? "success"
+              : report.status === "generating"
+                ? "warning"
+                : "destructive"
+          }
+        >
+          {t(STATUS_KEY[report.status as ReportStatus])}
+        </Badge>
+        {report.status === "ready" && (
+          <button
+            onClick={() => onDownload(report.title)}
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            title={t("download")}
+          >
+            <Download className="w-3.5 h-3.5" />
+          </button>
+        )}
+        {report.status === "generating" && (
+          <RefreshCw className="w-3.5 h-3.5 text-muted-foreground animate-spin ml-2" />
+        )}
+      </div>
+    </div>
+  );
+});
+
+// Main Component
 export function ReportsContent() {
   const t = useTranslations("reports");
-  const { locale } = useSettingsStore();
+
+  const locale = useSettingsStore((s) => s.locale);
+
   const [range, setRange] = useState<DateRange>("30d");
   const [generating, setGenerating] = useState(false);
   const { data: reports, isLoading } = useReports();
 
-  const DATE_RANGES = useMemo(
-    () =>
-      DATE_RANGE_VALUES.map((value) => ({
-        value,
-        label: t(
-          value === "7d"
-            ? "last7days"
-            : value === "30d"
-              ? "last30days"
-              : "last90days",
-        ),
-      })),
-    [t],
-  );
+  const DATE_RANGES = DATE_RANGE_VALUES.map((value) => ({
+    value,
+    label: t(
+      value === "7d"
+        ? "last7days"
+        : value === "30d"
+          ? "last30days"
+          : "last90days",
+    ),
+  }));
 
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
@@ -78,9 +141,9 @@ export function ReportsContent() {
   }, []);
 
   const handleDownload = useCallback((title: string) => {
-  const csv = `Report: ${title}\nGenerated: ${new Date().toLocaleString()}\n\nMonth,Revenue,Users\nJan,42000,1240\nFeb,47500,1388\nMar,51200,1551`;
-  downloadCSV(title, csv);
-}, []);
+    const csv = `Report: ${title}\nGenerated: ${new Date().toLocaleString()}\n\nMonth,Revenue,Users\nJan,42000,1240\nFeb,47500,1388\nMar,51200,1551`;
+    downloadCSV(title, csv);
+  }, []);
 
   const handleExportAll = useCallback(() => {
     toast.info("Export started", "All reports are being exported");
@@ -109,13 +172,11 @@ export function ReportsContent() {
         </button>
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <RevenueChart range={range} />
-        <UserGrowthChart range={range} />
+        <RevenueChart range={range} locale={locale} />
+        <UserGrowthChart range={range} locale={locale} />
       </div>
 
-      {/* Reports list */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <h3 className="text-sm font-semibold">{t("generatedReports")}</h3>
@@ -130,7 +191,7 @@ export function ReportsContent() {
 
         <div className="divide-y divide-border">
           {isLoading &&
-            Array.from({ length: 4 }).map((_, i) => (
+            SKELETON_ROWS.map((i) => (
               <div key={i} className="px-5 py-4 flex items-center gap-4">
                 <div className="skeleton w-8 h-8 rounded-lg" />
                 <div className="flex-1">
@@ -142,60 +203,15 @@ export function ReportsContent() {
             ))}
 
           {!isLoading &&
-            reports?.map((report) => {
-              const Icon = typeIcon[report.type as ReportType];
-              return (
-                <div
-                  key={report.id}
-                  className="px-5 py-4 flex items-center gap-4 hover:bg-secondary/30 transition-colors cursor-pointer"
-                >
-                  <div
-                    className={cn(
-                      "p-2 rounded-lg shrink-0",
-                      typeColor[report.type as ReportType],
-                    )}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {report.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {report.description}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-xs text-muted-foreground hidden sm:block">
-                      {formatDateLocale(report.createdAt, locale)}
-                    </span>
-                    <Badge
-                      variant={
-                        report.status === "ready"
-                          ? "success"
-                          : report.status === "generating"
-                            ? "warning"
-                            : "destructive"
-                      }
-                    >
-                      {t(statusKey[report.status as ReportStatus])}
-                    </Badge>
-                    {report.status === "ready" && (
-                      <button
-                        onClick={() => handleDownload(report.title)}
-                        className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-                        title={t("download")}
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    {report.status === "generating" && (
-                      <RefreshCw className="w-3.5 h-3.5 text-muted-foreground animate-spin ml-2" />
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+            reports?.map((report) => (
+              <ReportRow
+                key={report.id}
+                report={report}
+                locale={locale}
+                onDownload={handleDownload}
+                t={t}
+              />
+            ))}
         </div>
       </div>
     </div>
