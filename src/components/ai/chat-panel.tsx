@@ -7,10 +7,16 @@ import { useChatStore, useSettingsStore } from "@/store";
 import { cn, getTextDirection } from "@/lib/utils";
 import { MessageBubble } from "./message-bubble";
 
-const panelVariants = {
+const panelVariantsRTL = {
   initial: { x: "100%", opacity: 0 },
   animate: { x: 0, opacity: 1 },
   exit: { x: "100%", opacity: 0 },
+} as const;
+
+const panelVariantsLTR = {
+  initial: { x: "-100%", opacity: 0 },
+  animate: { x: 0, opacity: 1 },
+  exit: { x: "-100%", opacity: 0 },
 } as const;
 
 const panelTransition = {
@@ -18,6 +24,9 @@ const panelTransition = {
   damping: 30,
   stiffness: 300,
 } as const;
+
+const POSITION_RTL = "right-0 border-l border-border";
+const POSITION_LTR = "left-0 border-r border-border";
 
 const MIN_HEIGHT = 36;
 const MAX_HEIGHT = 112;
@@ -52,6 +61,9 @@ export function AIChatPanel() {
 
   const locale = useSettingsStore((s) => s.locale);
   const isRTL = locale === "fa";
+
+  const panelVariants = isRTL ? panelVariantsLTR : panelVariantsRTL;
+  const positionClass = isRTL ? POSITION_LTR : POSITION_RTL;
 
   const {
     messages,
@@ -189,7 +201,10 @@ export function AIChatPanel() {
           exit="exit"
           transition={panelTransition}
           dir={isRTL ? "rtl" : "ltr"}
-          className="fixed right-0 top-0 h-full w-96 bg-card border-l border-border flex flex-col shadow-2xl z-50"
+          className={cn(
+            "fixed top-0 h-full w-96 bg-card flex flex-col shadow-2xl z-50",
+            positionClass,
+          )}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
