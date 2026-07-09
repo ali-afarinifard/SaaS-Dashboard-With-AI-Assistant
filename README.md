@@ -1,4 +1,4 @@
-# Nexus Analytics — SaaS Dashboard
+# Data Analytics — SaaS Dashboard
 
 A production-grade SaaS analytics dashboard built with Next.js 14, TypeScript, TailwindCSS, React Query, Zustand, Recharts, and AI-powered insights via GROQ API.
 
